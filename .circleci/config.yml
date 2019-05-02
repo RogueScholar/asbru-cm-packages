@@ -1,0 +1,17 @@
+---
+version: 2.1
+jobs:
+  build:
+    docker:
+      - image: circleci/buildpack-deps:disco
+    steps:
+      - checkout
+      - run:
+          name: Update apt and install build dependencies
+          command: >
+            sudo apt update && sudo apt install -y wget git build-essential
+            debhelper devscripts libvte-dev libgtk2-perl libextutils-pkgconfig-perl
+            libextutils-depends-perl software-properties-common
+      - run:
+          name: Build libgnome2-vte-perl
+          command: cd libgnome2-vte-perl && ./make_debian.sh
