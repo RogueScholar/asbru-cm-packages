@@ -1,11 +1,20 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-# Some working variables
-G="\033[32m"
-B="\033[39m"
-Y="\033[33m"
-OK="${G}OK${B}"
-ERROR="${Y}ERROR${B}"
+# Exit script if you try to use an uninitialized variable.
+set -o nounset
+
+# Exit script if a statement returns a non-true return value.
+set -o errexit
+
+# Use the error status of the first failure, rather than that of the last item in a pipeline.
+set -o pipefail
+
+# Some ANSI color goodness
+G='\033[32m'
+B='\033[39m'
+Y='\033[33m'
+OK="${G}OK:${B}"
+ERROR="${Y}ERROR:${B}"
 
 # Let's check some basic requirements
 if ! [ -x "$(command -v debuild)" ]; then
