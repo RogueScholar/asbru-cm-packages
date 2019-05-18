@@ -14,8 +14,9 @@
 *.tmPreferences.cache
 *.stTheme.cache
 
-# Sublime Text workspace files are user-specific
+# Sublime Text files are user-specific
 *.sublime-workspace
+*.sublime-project
 
 # Sublime Text SFTP configuration/credentials file
 sftp-config.json

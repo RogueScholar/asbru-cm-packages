@@ -16,21 +16,23 @@ Y='\033[33m'
 OK="${G}OK:${B}"
 ERROR="${Y}ERROR:${B}"
 
-PACKAGE_DIR="./tmp"
+REPO_ROOT_DIR="$(git rev-parse --show-toplevel)"
+PACKAGE_NAME="libgnome2-gconf-perl"
+PACKAGE_DIR="${REPO_ROOT_DIR}/${PACKAGE_NAME}/tmp"
 ORIG_PACKAGE_NAME="Gnome2-GConf-1.044"
-PACKAGE_NAME="libgnome2-gconf-perl_1.044"
 PACKAGE_SRC="https://cpan.metacpan.org/authors/id/T/TS/TSCH/${ORIG_PACKAGE_NAME}.tar.gz"
+PACKAGE_VER="1.044"
 
 rm -rf "${PACKAGE_DIR}"
 mkdir -p "${PACKAGE_DIR}"
 
-wget -q ${PACKAGE_SRC} -O ${PACKAGE_DIR}/${PACKAGE_NAME}.orig.tar.gz || echo "${ERROR} Unable to download ${ORIG_PACKAGE_NAME} from CPAN."
+wget -q ${PACKAGE_SRC} -O ${PACKAGE_DIR}/${PACKAGE_NAME}_${PACKAGE_VER}.orig.tar.gz || echo "${ERROR} Unable to download ${ORIG_PACKAGE_NAME} from CPAN."
 
-if [ ! -f "${PACKAGE_DIR}/${PACKAGE_NAME}.orig.tar.gz" ]; then
+if [ ! -f "${PACKAGE_DIR}/${PACKAGE_NAME}_${PACKAGE_VER}.orig.tar.gz" ]; then
   exit 1
 fi
 
-tar -xzf ${PACKAGE_DIR}/${PACKAGE_NAME}.orig.tar.gz -C ${PACKAGE_DIR}
+tar -xzf ${PACKAGE_DIR}/${PACKAGE_NAME}_${PACKAGE_VER}.orig.tar.gz -C ${PACKAGE_DIR}
 
 cp -R debian/ ${PACKAGE_DIR}/${ORIG_PACKAGE_NAME}/
 
@@ -38,6 +40,6 @@ cd ${PACKAGE_DIR}/${ORIG_PACKAGE_NAME}/
 
 perl -i -pe "s/unstable/$(lsb_release -cs)/" debian/changelog
 
-echo -n "Building package ${PACKAGE_NAME}_$(dpkg --print-architecture).deb, please be patient..."
+echo -n "Building package ${PACKAGE_NAME}_${PACKAGE_VER}_$(dpkg --print-architecture).deb, please be patient..."
 
-debuild -F -us -uc && echo "${OK} I have good news! ${PACKAGE_NAME}_$(dpkg --print-architecture).deb was succesfully built in $(readlink -m "$PACKAGE_DIR") :)" || echo "${ERROR} I have bad news; the build process was unable to complete successfully. Please check the ${PACKAGE_NAME}_$(dpkg --print-architecture).build file in $(readlink -m "$PACKAGE_DIR") to get more information."
+debuild -F -us -uc && echo "${OK} I have good news! ${PACKAGE_NAME}_${PACKAGE_VER}_$(dpkg --print-architecture).deb was succesfully built in ${PACKAGE_DIR} :)" || echo "${ERROR} I have bad news; the build process was unable to complete successfully. Please check the ${PACKAGE_NAME}_${PACKAGE_VER}_$(dpkg --print-architecture).build file in ${PACKAGE_DIR} to get more information."
