@@ -9,9 +9,72 @@ jobs:
       - run:
           name: Update apt and install build dependencies
           command: >
-            sudo apt update && sudo apt install -y wget git build-essential
-            debhelper devscripts libvte-dev libgtk2-perl libextutils-pkgconfig-perl
-            libextutils-depends-perl software-properties-common
+            sudo apt update && sudo apt install -y bash build-essential
+            debhelper devscripts libgconf2-dev libvte-dev libgtk2-perl
+            libextutils-pkgconfig-perl libextutils-depends-perl
+            software-properties-common
+      - run:
+          name: Build libgnome2-gconf-perl
+          command: cd libgnome2-gconf-perl && ./make_debian.sh
+      - store_artifacts:
+          path: /libgnome2-gconf-perl/tmp/libgnome2-gconf-perl_1.044-6_amd64.deb
+          destination: deb-packages
+      - store_artifacts:
+          path: /libgnome2-gconf-perl/tmp/libgnome2-gconf-perl-dbgsym_1.044-6_amd64.ddeb
+          destination: dbgsym-packages
+      - store_artifacts:
+          path: /libgnome2-gconf-perl/tmp/libgnome2-gconf-perl_1.044-6_amd64.changes
+          destination: debian-source
       - run:
           name: Build libgnome2-vte-perl
           command: cd libgnome2-vte-perl && ./make_debian.sh
+      - store_artifacts:
+          path: /libgnome2-vte-perl/tmp/libgnome2-vte-perl_0.11-2_amd64.deb
+          destination: deb-packages
+      - store_artifacts:
+          path: /libgnome2-vte-perl/tmp/libgnome2-vte-perl-dbgsym_0.11-2_amd64.ddeb
+          destination: dbgsym-packages
+      - store_artifacts:
+          path: /libgnome2-vte-perl/tmp/libgnome2-vte-perl_0.11-2_amd64.changes
+          destination: debian-source
+      - run:
+          name: Build libgtk2-ex-simple-list-perl
+          command: cd libgtk2-ex-simple-list-perl && ./make_debian.sh
+      - store_artifacts:
+          path: /libgtk2-ex-simple-list-perl/tmp/libgtk2-ex-simple-list-perl_0.50-3_amd64.deb
+          destination: deb-packages
+      - store_artifacts:
+          path: /libgtk2-ex-simple-list-perl/tmp/libgtk2-ex-simple-list-perl-dbgsym_0.50-3_amd64.ddeb
+          destination: dbgsym-packages
+      - store_artifacts:
+          path: /libgtk2-ex-simple-list-perl/tmp/libgtk2-ex-simple-list-perl_0.50-3_amd64.changes
+          destination: debian-source
+      - run:
+          name: Build libgtk2-gladexml-perl
+          command: cd libgtk2-gladexml-perl && ./make_debian.sh
+      - store_artifacts:
+          path: /libgtk2-gladexml-perl/tmp/libgtk2-gladexml-perl_1.007-2_amd64.deb
+          destination: deb-packages
+      - store_artifacts:
+          path: /libgtk2-gladexml-perl/tmp/libgtk2-gladexml-perl-dbgsym_1.007-2_amd64.ddeb
+          destination: dbgsym-packages
+      - store_artifacts:
+          path: /libgtk2-gladexml-perl/tmp/libgtk2-gladexml-perl_1.007-2_amd64.changes
+          destination: debian-source
+      - run:
+          name: Build libgtk2-unique-perl
+          command: cd libgtk2-unique-perl && ./make_debian.sh
+      - store_artifacts:
+          path: /libgtk2-unique-perl/tmp/libgtk2-unique-perl_0.05-3_amd64.deb
+          destination: deb-packages
+      - store_artifacts:
+          path: /libgtk2-unique-perl/tmp/libgtk2-unique-perl-dbgsym_0.05-3_amd64.ddeb
+          destination: dbgsym-packages
+      - store_artifacts:
+          path: /libgtk2-unique-perl/tmp/libgtk2-unique-perl_0.05-3_amd64.changes
+          destination: debian-source
+workflows:
+  version: 2
+  build:
+    jobs:
+      - build

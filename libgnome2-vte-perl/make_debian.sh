@@ -31,7 +31,7 @@ mv ../Gnome2-Vte-0.11.tar.gz ../libgnome2-vte-perl_0.11.orig.tar.gz
 
 echo -n "Building package release, be patient ..."
 
-debuild -us -uc
+debuild -F -us -uc
 
 if [ $? -eq 0 ] ; then
   echo -e " $OK !"
