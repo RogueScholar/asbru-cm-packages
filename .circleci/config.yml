@@ -1,9 +1,34 @@
 ---
 version: 2.1
 jobs:
-  build:
+  shellcheck_and_store:
     docker:
       - image: circleci/buildpack-deps:disco
+    working_directory: ~/packages
+    steps:
+      - checkout
+      - run:
+          name: Install shellcheck and shfmt v3
+          command: |
+            sudo apt update && sudo apt install -y software-properties-common add-apt-key
+            sudo apt-add-repository -ysu ppa:roguescholar/ppa
+            sudo apt install -y shellcheck golang-1.12
+            cd $(mktemp -d) && go mod init tmp && go get mvdan.cc/sh/v3/cmd/shfmt
+            export PATH="$GOPATH/bin:$PATH"
+      - run:
+          name: Test shell scripts and record file stats
+          command: |
+            mkdir ~/test-reports
+            find . -type f -name '*.sh' | wc -l 2>&1 | tee ~/test-reports/script-file-stats.txt
+            find . -type f -name '*.sh' | xargs shellcheck -ax -s bash 2>&1 | tee -a ~/test-reports/shellcheck-output.txt
+            find . -type f -name '*.sh' | xargs shfmt -p -d -i 2 -ci -s 2>&1 | tee -a ~/test-reports/shfmt-output.txt
+      - store_artifacts:
+          path: /home/circleci/test-reports
+          destination: script-tests
+  build_libs_and_save:
+    docker:
+      - image: circleci/buildpack-deps:disco
+    working_directory: ~/packages
     steps:
       - checkout
       - run:
@@ -17,64 +42,81 @@ jobs:
           name: Build libgnome2-gconf-perl
           command: cd libgnome2-gconf-perl && ./make_debian.sh
       - store_artifacts:
-          path: /libgnome2-gconf-perl/tmp/libgnome2-gconf-perl_1.044-6_amd64.deb
+          path: /home/circleci/packages/libgnome2-gconf-perl/libgnome2-gconf-perl_1.044-6_amd64.deb
           destination: deb-packages
       - store_artifacts:
-          path: /libgnome2-gconf-perl/tmp/libgnome2-gconf-perl-dbgsym_1.044-6_amd64.ddeb
+          path: /home/circleci/packages/libgnome2-gconf-perl/libgnome2-gconf-perl-dbgsym_1.044-6_amd64.ddeb
           destination: dbgsym-packages
       - store_artifacts:
-          path: /libgnome2-gconf-perl/tmp/libgnome2-gconf-perl_1.044-6_amd64.changes
+          path: /home/circleci/packages/libgnome2-gconf-perl/libgnome2-gconf-perl_1.044-6_amd64.changes
           destination: debian-source
       - run:
           name: Build libgnome2-vte-perl
           command: cd libgnome2-vte-perl && ./make_debian.sh
       - store_artifacts:
-          path: /libgnome2-vte-perl/tmp/libgnome2-vte-perl_0.11-2_amd64.deb
+          path: /home/circleci/packages/libgnome2-vte-perl/libgnome2-vte-perl_0.11-2_amd64.deb
           destination: deb-packages
       - store_artifacts:
-          path: /libgnome2-vte-perl/tmp/libgnome2-vte-perl-dbgsym_0.11-2_amd64.ddeb
+          path: /home/circleci/packages/libgnome2-vte-perl/libgnome2-vte-perl-dbgsym_0.11-2_amd64.ddeb
           destination: dbgsym-packages
       - store_artifacts:
-          path: /libgnome2-vte-perl/tmp/libgnome2-vte-perl_0.11-2_amd64.changes
+          path: /home/circleci/packages/libgnome2-vte-perl/libgnome2-vte-perl_0.11-2.dsc
+          destination: debian-source
+      - store_artifacts:
+          path: /home/circleci/packages/libgnome2-vte-perl/libgnome2-vte-perl_0.11-2_amd64.changes
+          destination: debian-source
+      - store_artifacts:
+          path: /home/circleci/packages/libgnome2-vte-perl/libgnome2-vte-perl_0.11-2_source.buildinfo
           destination: debian-source
       - run:
           name: Build libgtk2-ex-simple-list-perl
           command: cd libgtk2-ex-simple-list-perl && ./make_debian.sh
       - store_artifacts:
-          path: /libgtk2-ex-simple-list-perl/tmp/libgtk2-ex-simple-list-perl_0.50-3_amd64.deb
+          path: /home/circleci/packages/libgtk2-ex-simple-list-perl/libgtk2-ex-simple-list-perl_0.50-3_amd64.deb
           destination: deb-packages
       - store_artifacts:
-          path: /libgtk2-ex-simple-list-perl/tmp/libgtk2-ex-simple-list-perl-dbgsym_0.50-3_amd64.ddeb
+          path: /home/circleci/packages/libgtk2-ex-simple-list-perl/libgtk2-ex-simple-list-perl-dbgsym_0.50-3_amd64.ddeb
           destination: dbgsym-packages
       - store_artifacts:
-          path: /libgtk2-ex-simple-list-perl/tmp/libgtk2-ex-simple-list-perl_0.50-3_amd64.changes
+          path: /home/circleci/packages/libgtk2-ex-simple-list-perl/libgtk2-ex-simple-list-perl_0.50-3_amd64.changes
           destination: debian-source
       - run:
           name: Build libgtk2-gladexml-perl
           command: cd libgtk2-gladexml-perl && ./make_debian.sh
       - store_artifacts:
-          path: /libgtk2-gladexml-perl/tmp/libgtk2-gladexml-perl_1.007-2_amd64.deb
+          path: /home/circleci/packages/libgtk2-gladexml-perl/libgtk2-gladexml-perl_1.007-2_amd64.deb
           destination: deb-packages
       - store_artifacts:
-          path: /libgtk2-gladexml-perl/tmp/libgtk2-gladexml-perl-dbgsym_1.007-2_amd64.ddeb
+          path: /home/circleci/packages/libgtk2-gladexml-perl/libgtk2-gladexml-perl-dbgsym_1.007-2_amd64.ddeb
           destination: dbgsym-packages
       - store_artifacts:
-          path: /libgtk2-gladexml-perl/tmp/libgtk2-gladexml-perl_1.007-2_amd64.changes
+          path: /home/circleci/packages/libgtk2-gladexml-perl/libgtk2-gladexml-perl_1.007-2_amd64.changes
           destination: debian-source
       - run:
           name: Build libgtk2-unique-perl
           command: cd libgtk2-unique-perl && ./make_debian.sh
       - store_artifacts:
-          path: /libgtk2-unique-perl/tmp/libgtk2-unique-perl_0.05-3_amd64.deb
+          path: /home/circleci/packages/libgtk2-unique-perl/libgtk2-unique-perl_0.05-3_amd64.deb
           destination: deb-packages
       - store_artifacts:
-          path: /libgtk2-unique-perl/tmp/libgtk2-unique-perl-dbgsym_0.05-3_amd64.ddeb
+          path: /home/circleci/packages/libgtk2-unique-perl/libgtk2-unique-perl-dbgsym_0.05-3_amd64.ddeb
           destination: dbgsym-packages
       - store_artifacts:
-          path: /libgtk2-unique-perl/tmp/libgtk2-unique-perl_0.05-3_amd64.changes
+          path: /home/circleci/packages/libgtk2-unique-perl/libgtk2-unique-perl_0.05-3_amd64.changes
           destination: debian-source
+      - save_cache:
+          key: lib-package-cache
+          paths:
+            - libgnome2-gconf-perl_1.044-6_amd64.deb
+            - libgnome2-vte-perl_0.11-2_amd64.deb
+            - libgtk2-ex-simple-list-perl_0.50-3_amd64.deb
+            - libgtk2-gladexml-perl_1.007-2_amd64.deb
+            - libgtk2-unique-perl_0.05-3_amd64.deb
 workflows:
   version: 2
   build:
     jobs:
-      - build
+      - shellcheck_and_store
+      - build_libs_and_save:
+          requires:
+            - shellcheck_and_store
