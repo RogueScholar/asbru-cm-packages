@@ -26,17 +26,17 @@ PACKAGE_VER="1.044"
 rm -rf "${PACKAGE_DIR}"
 mkdir -p "${PACKAGE_DIR}"
 
-wget -q ${PACKAGE_SRC} -O ${PACKAGE_DIR}/${PACKAGE_NAME}_${PACKAGE_VER}.orig.tar.gz || echo "${ERROR} Unable to download ${ORIG_PACKAGE_NAME} from CPAN."
+wget -q ${PACKAGE_SRC} -O "${PACKAGE_DIR}"/${PACKAGE_NAME}_${PACKAGE_VER}.orig.tar.gz || echo "${ERROR} Unable to download ${ORIG_PACKAGE_NAME} from CPAN."
 
 if [ ! -f "${PACKAGE_DIR}/${PACKAGE_NAME}_${PACKAGE_VER}.orig.tar.gz" ]; then
   exit 1
 fi
 
-tar -xzf ${PACKAGE_DIR}/${PACKAGE_NAME}_${PACKAGE_VER}.orig.tar.gz -C ${PACKAGE_DIR}
+tar -xzf "${PACKAGE_DIR}"/${PACKAGE_NAME}_${PACKAGE_VER}.orig.tar.gz -C "${PACKAGE_DIR}"
 
-cp -R debian/ ${PACKAGE_DIR}/${ORIG_PACKAGE_NAME}/
+cp -R debian/ "${PACKAGE_DIR}"/${ORIG_PACKAGE_NAME}/
 
-cd ${PACKAGE_DIR}/${ORIG_PACKAGE_NAME}/
+cd "${PACKAGE_DIR}"/${ORIG_PACKAGE_NAME}/
 
 perl -i -pe "s/unstable/$(lsb_release -cs)/" debian/changelog
 
