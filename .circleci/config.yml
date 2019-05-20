@@ -23,7 +23,7 @@ jobs:
             sudo apt-add-repository -ysu ppa:roguescholar/ppa
             sudo apt install -y bash git golang-1.12 shellcheck
             mkdir -p ${GOPATH} && export PATH="$PATH:${GOROOT}/bin:${GOPATH}/bin" && echo $PATH
-            cd ${GOPATH} && go get -v mvdan.cc/sh/v3/cmd/shfmt
+            cd ${GOPATH} && go get -u -v mvdan.cc/sh/v3/cmd/shfmt
       - run:
           name: Test shell scripts and record file stats
           command: |
@@ -136,7 +136,9 @@ jobs:
           at: library_debs
       - run:
           name: Install library dependencies
-          command: cd library_debs && sudo apt install -y ./lib*.deb
+          command: |
+            cd library_debs && sudo apt install -y ./libgnome2-gconf-perl_1.044-6_amd64.deb ./libgnome2-vte-perl_0.11-2_amd64.deb \
+            ./libgtk2-ex-simple-list-perl_0.50-3_all.deb ./libgtk2-gladexml-perl_1.007-2_amd64.deb ./libgtk2-unique-perl_0.05-3_amd64.deb
       - run:
           name: Build asbru-cm Debian package
           command: cd /home/circleci/packages/asbru-cm && ./make_debian.sh
@@ -156,7 +158,7 @@ jobs:
             - asbru-cm/tmp/asbru-cm_5.2.0-1_amd64.deb
   build_asbru_rpm_and_save:
     docker:
-      - image: fedora/fedora:30
+      - image: fedora:30
     shell: /bin/bash
     working_directory: /home/circleci/packages
     steps:
@@ -182,7 +184,10 @@ jobs:
           at: deb_packagess
       - run:
           name: Install built packages
-          command: cd deb_packages && sudo apt install -y ./*.deb
+          command: |
+            cd deb_packages && sudo apt install -y ./libgnome2-gconf-perl_1.044-6_amd64.deb ./libgnome2-vte-perl_0.11-2_amd64.deb \
+            ./libgtk2-ex-simple-list-perl_0.50-3_all.deb ./libgtk2-gladexml-perl_1.007-2_amd64.deb ./libgtk2-unique-perl_0.05-3_amd64.deb \
+            ./asbru-cm_5.2.0-1_amd64.deb
       - run:
           name: Add packagecloud.io repository for upgrade tests
           command: |
