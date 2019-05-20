@@ -202,25 +202,25 @@ workflows:
   version: 2
   asbru-cm-test-build:
     jobs:
-      - scripts_test_and_store
+      - scripts_test_and_store:
           filters:
             branches:
               only: master
-      - build_libs_and_save
+      - build_libs_and_save:
           filters:
             branches:
               only: master
-      - build_asbru_deb_and_save
+      - build_asbru_deb_and_save:
           requires:
             - build_libs_and_save
           filters:
             branches:
               only: master
-      - build_asbru_rpm_and_save
+      - build_asbru_rpm_and_save:
           filters:
             branches:
               only: master
-      - test_deb_packages
+      - test_deb_packages:
           requires:
             - build_libs_and_save
             - build_asbru_deb_and_save
