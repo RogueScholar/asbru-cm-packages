@@ -1,3 +1,34 @@
+asbru-cm (5.2.0-1) unstable; urgency=medium
+
+  * Upstream 5.2.0 release
+
+ -- Ásbrú Project Team <contact@asbru-cm.net> Fri, 19 Apr 2019 13:56:29 +0200
+
+asbru-cm (5.1.0-1) unstable; urgency=medium
+
+  * Upstream 5.1.0 release
+
+ -- Ásbrú Project Team <contact@asbru-cm.net> Mon, 23 Jul 2018 20:56:29 +0100
+
+asbru-cm (5.0.0-1) unstable; urgency=medium
+
+  * Upstream 5.0.0 release
+
+ -- Klaas tammling <klaas@tammling.hamburg> Fri, 29 Dec 2017 10:55:29 +0100
+
+asbru-cm (5.0.0~rc4-1) unstable; urgency=medium
+
+  * Upstream RC4 release
+
+ -- Klaas Tammling <klaas@tammling.hamburg>  Sun, 19 Nov 2017 19:10:29 +0100
+
+asbru-cm (5.0.0~rc3-3) unstable; urgency=medium
+
+  * Installing the .desktop file now
+  * Installing a symlink to /usr/bin/asbru
+
+ -- Klaas Tammling <klaas@tammling.hamburg>  Sat, 18 Nov 2017 11:44:00 +0100
+
 asbru-cm (5.0.0~rc3-2) unstable; urgency=medium
 
   * Added dependency for libcanberra-gtk-module

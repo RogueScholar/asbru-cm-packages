@@ -1,48 +1,54 @@
 ---
 version: 2.1
-jobs:
-  shellcheck_and_store:
+executors:
+  ubuntu-disco:
     docker:
       - image: circleci/buildpack-deps:disco
     shell: /bin/bash
     working_directory: /home/circleci/packages
+jobs:
+  scripts_test_and_store:
+    executor: ubuntu-disco
+    environment:
+      GOPATH: "/home/circleci/go"
+      GOROOT: "/usr/lib/go-1.12"
     steps:
       - checkout
       - run:
-          name: Install shellcheck and shfmt v3
+          name: Install shellcheck and shfmt3
           command: |
             set +e && set +o pipefail
-            sudo apt update && sudo apt full-upgrade -y && sudo apt install -y add-apt-key apt-utils isoquery lsb software-properties-common
+            sudo apt update && sudo apt full-upgrade -y
+            sudo apt install -y add-apt-key apt-transport-https apt-utils curl gnupg software-properties-common
             sudo apt-add-repository -ysu ppa:roguescholar/ppa
             sudo apt install -y bash git golang-1.12 shellcheck
-            mkdir -p /home/circleci/go && export GOPATH="/home/circleci/go" && export GOROOT="/usr/lib/go-1.12" && export PATH="$PATH:$GOROOT/bin:$GOPATH/bin"
-            cd $(mktemp -d) && go mod init tmp && go get mvdan.cc/sh/v3/cmd/shfmt
+            mkdir -p ${GOPATH} && export PATH="$PATH:${GOROOT}/bin:${GOPATH}/bin" && echo $PATH
+            cd ${GOPATH} && go get -v mvdan.cc/sh/v3/cmd/shfmt
       - run:
           name: Test shell scripts and record file stats
           command: |
             set +e && set +o pipefail
-            mkdir ~/test-reports
+            mkdir -p /home/circleci/script-test-reports
             echo "Calculating script file stats..."
-            find . -type f -name '*.sh' | xargs wc -lmw 2>&1 | tee /home/circleci/test-reports/script-file-stats.txt
-            echo "Running shell script tests..."
-            find . -type f -name '*.sh' | xargs shellcheck -ax -s bash 2>&1 | tee -a /home/circleci/test-reports/shellcheck-output.txt
-            find . -type f -name '*.sh' | xargs shfmt -p -d -i 2 -ci -s 2>&1 | tee -a /home/circleci/test-reports/shfmt3-output.txt
+            find . -type f -name '*.sh' | xargs wc -lmw 2>&1 | tee -a /home/circleci/script-test-reports/script-file-stats.txt
+            echo "Running shellcheck tests..."
+            find . -type f -name '*.sh' | xargs shellcheck -ax -s bash 2>&1 | tee -a /home/circleci/script-test-reports/shellcheck-output.txt
+            echo "Running shfmt v3 tests..."
+            find . -type f -name '*.sh' | xargs shfmt -p -d -i 2 -ci -s 2>&1 | tee -a /home/circleci/script-test-reports/shfmt3-output.txt
       - store_artifacts:
-          path: /home/circleci/test-reports
+          path: /home/circleci/script-test-reports
           destination: script-tests
   build_libs_and_save:
-    docker:
-      - image: circleci/buildpack-deps:disco
-    shell: /bin/bash
-    working_directory: /home/circleci/packages
+    executor: ubuntu-disco
     steps:
       - checkout
       - run:
           name: Update apt and install build dependencies
           command: |
-            sudo apt update && sudo apt full-upgrade -y && sudo apt install -y adequate apt-utils autopkgtest bash binutils-multiarch build-essential \
-            debhelper debtags devscripts dh-acc dh-make dselect groff libgconf2-dev libglade2-dev libglib-perl libgtk2-perl libvte-dev libgtk2-perl \
-            libextutils-pkgconfig-perl libextutils-depends-perl libunique-dev lsb perl software-properties-common quilt xauth xfonts-base xvfb
+            sudo apt update && sudo apt full-upgrade -y && sudo apt install -y adequate apt-transport-https apt-utils autopkgtest bash binutils-multiarch \
+            build-essential curl debhelper debtags devscripts dh-acc dh-make dselect gnupg groff libgconf2-dev libglade2-dev libglib-perl libgtk2-perl \
+            libvte-dev libgtk2-perl libextutils-pkgconfig-perl libextutils-depends-perl libunique-dev perl software-properties-common quilt wget xauth \
+            xfonts-base xvfb
       - run:
           name: Build libgnome2-gconf-perl
           command: cd /home/circleci/packages/libgnome2-gconf-perl && ./make_debian.sh
@@ -92,7 +98,7 @@ jobs:
       - store_artifacts:
           path: /home/circleci/packages/libgtk2-gladexml-perl/tmp/libgtk2-gladexml-perl_1.007-2_amd64.changes
       - store_artifacts:
-          path: /home/circleci/packages/libgtk2-gladexml-perl/tmp/libgtk2-gladexml-perl_1.007-2_source.buildinfo
+          path: /home/circleci/packages/libgtk2-gladexml-perl/tmp/libgtk2-gladexml-perl_1.007-2_amd64.buildinfo
       - run:
           name: Build libgtk2-unique-perl
           command: cd /home/circleci/packages/libgtk2-unique-perl && ./make_debian.sh
@@ -105,18 +111,119 @@ jobs:
       - store_artifacts:
           path: /home/circleci/packages/libgtk2-unique-perl/tmp/libgtk2-unique-perl_0.05-3_amd64.changes
       - store_artifacts:
-          path: /home/circleci/packages/libgtk2-unique-perl/tmp/libgtk2-unique-perl_0.05-3_source.buildinfo
-      - save_cache:
-          key: lib-package-cache
+          path: /home/circleci/packages/libgtk2-unique-perl/tmp/libgtk2-unique-perl_0.05-3_amd64.buildinfo
+      - persist_to_workspace:
+          root: /home/circleci/packages
           paths:
-            - /home/circleci/packages/libgnome2-gconf-perl/tmp/libgnome2-gconf-perl_1.044-6_amd64.deb
-            - /home/circleci/packages/libgnome2-vte-perl/tmp/libgnome2-vte-perl_0.11-2_amd64.deb
-            - /home/circleci/packages/libgtk2-ex-simple-list-perl/tmp/libgtk2-ex-simple-list-perl_0.50-3_amd64.deb
-            - /home/circleci/packages/libgtk2-gladexml-perl/tmp/libgtk2-gladexml-perl_1.007-2_amd64.deb
-            - /home/circleci/packages/libgtk2-unique-perl/tmp/libgtk2-unique-perl_0.05-3_amd64.deb
+            - libgnome2-gconf-perl/tmp/libgnome2-gconf-perl_1.044-6_amd64.deb
+            - libgnome2-vte-perl/tmp/libgnome2-vte-perl_0.11-2_amd64.deb
+            - libgtk2-ex-simple-list-perl/tmp/libgtk2-ex-simple-list-perl_0.50-3_all.deb
+            - libgtk2-gladexml-perl/tmp/libgtk2-gladexml-perl_1.007-2_amd64.deb
+            - libgtk2-unique-perl/tmp/libgtk2-unique-perl_0.05-3_amd64.deb
+  build_asbru_deb_and_save:
+    executor: ubuntu-disco
+    steps:
+      - checkout
+      - run:
+          name: Update apt and install build dependencies
+          command: |
+            sudo apt update && sudo apt full-upgrade -y && sudo apt install -y apt-transport-https apt-utils autopkgtest bash binutils-multiarch \
+            build-essential curl debhelper debtags devscripts dh-acc dh-make dh-make-perl dselect ftp gnupg groff gtk2-engines-pixbuf jq libcairo-perl \
+            libcanberra-gtk-module libcrypt-blowfish-perl libcrypt-cbc-perl libcrypt-rijndael-perl libexpect-perl libglib-perl libgtk2-perl libnet-arp-perl \
+            libnet-proxy-perl libossp-uuid-perl libpango-perl libsocket6-perl libvte9 libxml-parser-perl libyaml-perl openssh-client perl quilt \
+            software-properties-common telnet wget
+      - attach_workspace:
+          at: library_debs
+      - run:
+          name: Install library dependencies
+          command: cd library_debs && sudo apt install -y ./lib*.deb
+      - run:
+          name: Build asbru-cm Debian package
+          command: cd /home/circleci/packages/asbru-cm && ./make_debian.sh
+      - store_artifacts:
+          path: /home/circleci/packages/asbru-cm/tmp/asbru-cm_5.2.0-1_amd64.deb
+      - store_artifacts:
+          path: /home/circleci/packages/asbru-cm/tmp/asbru-cm-dbgsym_5.2.0-1_amd64.ddeb
+      - store_artifacts:
+          path: /home/circleci/packages/asbru-cm/tmp/asbru-cm_5.2.0-1.dsc
+      - store_artifacts:
+          path: /home/circleci/packages/asbru-cm/tmp/asbru-cm_5.2.0-1_amd64.changes
+      - store_artifacts:
+          path: /home/circleci/packages/asbru-cm/tmp/asbru-cm_5.2.0-1_amd64.buildinfo
+      - persist_to_workspace:
+          root: /home/circleci/packages
+          paths:
+            - asbru-cm/tmp/asbru-cm_5.2.0-1_amd64.deb
+  build_asbru_rpm_and_save:
+    docker:
+      - image: fedora/fedora:30
+    shell: /bin/bash
+    working_directory: /home/circleci/packages
+    steps:
+      - checkout
+      -run:
+        name: Update dnf and install build dependencies
+        command: sudo dnf -y upgrade && sudo dnf -y install bash coreutils curl diffutils gcc jq make patch python rpm-build rpm-devel rpmdevtools rpmlint
+      - run:
+          name: Build asbru-cm RPM package
+          command: cd /home/circleci/packages/asbru-cm && ./make_rpm.sh
+      - store_artifacts:
+          path: /home/circleci/packages/asbru-cm/RPMS/noarch
+          destination: rpm-package
+  test_deb_packages:
+    executor: ubuntu-disco
+    steps:
+      - run:
+          name: Update apt and install testing packages
+          command: |
+            sudo apt update && sudo apt full-upgrade -y && sudo apt install -y abi-compliance-checker add-apt-key adequate apt-transport-https apt-utils \
+            autopkgtest curl debhelper debtags dpkg-dev dselect fakeroot gnupg gzip lintian pbuilder piuparts schroot software-properties-common
+      - attach_workspace:
+          at: deb_packagess
+      - run:
+          name: Install built packages
+          command: cd deb_packages && sudo apt install -y ./*.deb
+      - run:
+          name: Add packagecloud.io repository for upgrade tests
+          command: |
+            curl -L https://packagecloud.io/asbru-cm/asbru-cm/gpgkey | sudo apt-key add -
+            sudo apt-add-repository -ysu 'deb https://packagecloud.io/asbru-cm/asbru-cm/ubuntu/ disco main'
+      - run:
+          name: Test package installation results
+          command: |
+            mkdir -p /home/circleci/deb-test-reports
+            echo "Testing library package install results..."
+            piuparts libgnome2-gconf-perl libgnome2-vte-perl libgtk2-ex-simple-list-perl libgtk2-gladexml-perl libgtk2-unique-perl asbru-cm 2>&1 | \
+            tee -a /home/circleci/deb-test-reports/piuparts.txt
+      - store_artifacts:
+          path: /home/circleci/deb-test-reports
+          destination: deb-package-tests
 workflows:
   version: 2
-  build:
+  asbru-cm-test-build:
     jobs:
-      - shellcheck_and_store
+      - scripts_test_and_store
+          filters:
+            branches:
+              only: master
       - build_libs_and_save
+          filters:
+            branches:
+              only: master
+      - build_asbru_deb_and_save
+          requires:
+            - build_libs_and_save
+          filters:
+            branches:
+              only: master
+      - build_asbru_rpm_and_save
+          filters:
+            branches:
+              only: master
+      - test_deb_packages
+          requires:
+            - build_libs_and_save
+            - build_asbru_deb_and_save
+          filters:
+            branches:
+              only: master

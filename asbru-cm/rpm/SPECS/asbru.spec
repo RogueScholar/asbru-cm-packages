@@ -61,6 +61,8 @@ Requires:   vte
 Requires:   ftp
 Requires:   telnet
 Requires:   bash
+BuildRequires: pkgconfig
+BuildRequires: bash-completion
 BuildRoot:  %{_topdir}/tmp/%{name}-%{version}-%{release}-root
 
 %description
@@ -69,28 +71,19 @@ BuildRoot:  %{_topdir}/tmp/%{name}-%{version}-%{release}-root
 %prep
 %autosetup -n asbru-cm-%{_github_version} -p1
 sed -ri -e "s|\\\$RealBin[ ]*\.[ ]*'|'%{_datadir}/%{name}/lib|g" lib/pac_conn
-sed -ri -e "s|\\\$RealBin,|'%{_datadir}/%{name}',|g" lib/pac_conn
+sed -ri -e "s|\\\$RealBin,|'%{_datadir}/%{name}/lib',|g" lib/pac_conn
 find . -type f -exec sed -i \
   -e "s|\$RealBin[ ]*\.[ ]*'|'%{_datadir}/%{name}|g" \
   -e 's|"\$RealBin/|"%{_datadir}/%{name}/|g' \
   -e 's|/\.\.\(/\)|\1|' \
   '{}' \+
-sed -ri -e '/^(Exec|Icon)=/{s|pac|%{name}|}' \
-        -e 's|(^Categories=).*|\1GTK;Network;|' \
-        -e 's|(^Actions=.*;)|\1Tray;|' res/asbru.desktop
-sed -ri 's|([\t_ ]*)pac([ ]*)|\1%{name}\2|g' res/pac_bash_completion
-cat <<EOF >> res/asbru.desktop
-[Desktop Action Tray]
-Name=Start %{name} in system tray
-Exec=%{name} --iconified
-EOF
-cat res/asbru.desktop
+
 
 %build
 
 
 %check
-desktop-file-validate res/asbru.desktop
+desktop-file-validate res/asbru-cm.desktop
 
 
 %install
@@ -100,13 +93,15 @@ mkdir -p %{buildroot}/%{_datadir}/{%{name}/{lib,res},applications}
 mkdir -p %{buildroot}/%{_bashcompletiondir}
 mkdir -p %{buildroot}/%{_datadir}/icons/hicolor/{24x24,64x64,256x256,scalable}/apps
 
-install -m 755 asbru %{buildroot}/%{_bindir}/%{name}
+install -m 755 asbru-cm %{buildroot}/%{_bindir}/%{name}
 install -m 755 utils/pac_from_mcm.pl %{buildroot}/%{_bindir}/%{name}_from_mcm
 install -m 755 utils/pac_from_putty.pl %{buildroot}/%{_bindir}/%{name}_from_putty
 
-cp -a res/asbru.desktop %{buildroot}/%{_datadir}/applications/%{name}.desktop
-cp -a res/pac.1 %{buildroot}/%{_mandir}/man1/%{name}.1
-cp -a res/pac_bash_completion %{buildroot}/%{_bashcompletiondir}/%{name}
+echo Bashcompletion Directory %{_bashcompletiondir}
+
+cp -a res/asbru-cm.desktop %{buildroot}/%{_datadir}/applications/%{name}.desktop
+cp -a res/asbru-cm.1 %{buildroot}/%{_mandir}/man1/%{name}.1
+cp -a res/asbru_bash_completion %{buildroot}/%{_bashcompletiondir}/%{name}
 
 # Copy the icons over to /usr/share/icons/
 cp -a res/asbru-logo-24.png %{buildroot}/%{_datadir}/icons/hicolor/24x24/apps/%{name}.png
@@ -146,5 +141,11 @@ fi
 
 
 %changelog
-* Sat Nov 4 2017 Asbru Project Team <info@asbru-cm.net> 5.0.0
+* Mon Apr 19 2019 Ásbrú Project Team <contact@asbru-cm.net> 5.2.0
+- 5.2.0 release
+* Mon Jul 23 2018 Ásbrú Project Team <contact@asbru-cm.net> 5.1.0
+- 5.1.0 release
+* Fri Dec 29 2017 Asbru Project Team <contact@asbru-cm.net> 5.0.0
+- Final 5.0.0 release
+* Sat Nov 4 2017 Asbru Project Team <contact@asbru-cm.net> 5.0.0
 - Initial packaging of Ásbrú Connection Manager RPM
