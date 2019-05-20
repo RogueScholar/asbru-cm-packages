@@ -20,18 +20,11 @@ ERROR="${Y}ERROR:${B}"
 REPO_ROOT_DIR="$(git rev-parse --show-toplevel)"
 PACKAGE_DIR="${REPO_ROOT_DIR}/asbru-cm/tmp"
 PACKAGE_NAME="asbru-cm"
-PACKAGE_VER="$(curl -s https://api.github.com/repos/asbru-cm/asbru-cm/releases/latest | grep "tag_name" | awk '{print $2}' | tr -d , | tr -d '"')"
-DOWNLOAD_URL="$(curl -s https://api.github.com/repos/asbru-cm/asbru-cm/releases/latest | grep "tarball_url" | cut -d : -f 2,3 | tr -d , | tr -d '"')"
 PACKAGE_ARCH="$(dpkg --print-architecture)"
 
-# Let's check some basic requirements
+# Let's check that we can bake a package before we go shopping for the ingredients
 if [ ! -x "$(command -v debuild)" ]; then
   echo "debuild is required, did you install the 'devscripts' package yet?"
-  exit 1
-fi
-
-if [ ! -x "$(command -v curl)" ]; then
-  echo "curl is required, please install it with 'sudo apt install curl' and try again."
   exit 1
 fi
 
@@ -39,18 +32,60 @@ fi
 rm -rf "${PACKAGE_DIR}"
 mkdir -p "${PACKAGE_DIR}"
 
-# Download the tarball of the latest tagged release from GitHub
-wget -qc -t 5 --show-progress "${DOWNLOAD_URL}" -O "${PACKAGE_DIR}"/${PACKAGE_NAME}_"${PACKAGE_VER}".orig.tar.gz
+# Download the name of the latest tagged release from GitHub
+echo "Fetching https://github.com/asbru-cm/asbru-cm/releases/latest..."
+if [ -x "$(command -v curl)" ]; then
+  RESPONSE=$(curl -s -L -w 'HTTPSTATUS:%{http_code}' -H 'Accept: application/json' "https://github.com/asbru-cm/asbru-cm/releases/latest")
+  PACKAGE_VER=$(echo "${RESPONSE}" | sed -e 's/HTTPSTATUS\:.*//g' | tr -s '\n' ' ' | sed 's/.*"tag_name":"//' | sed 's/".*//')
+  HTTP_CODE=$(echo "${RESPONSE}" | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')
+elif [ -x "$(command -v wget)" ]; then
+  TEMP="$(mktemp)"
+  RESPONSE=$(wget -q --header='Accept: application/json' -O - --server-response "https://github.com/asbru-cm/asbru-cm/releases/latest" 2>"${TEMP}")
+  PACKAGE_VER=$(echo "${RESPONSE}" | tr -s '\n' ' ' | sed 's/.*"tag_name":"//' | sed 's/".*//')
+  HTTP_CODE=$(awk '/^  HTTP/{print $2}' <"${TEMP}" | tail -1)
+  rm "${TEMP}"
+else
+  echo "Neither curl nor wget was available to perform HTTP requests; please install one and try again."
+  exit 1
+fi
+
+# If we came up empty, give the user something to start troubleshooting with
+if [ "${HTTP_CODE}" != 200 ]; then
+  echo "Request to GitHub for latest release data failed with code ${HTTP_CODE}."
+  exit 1
+fi
+
+# Yes, I am telepathic. How else would I know the latest release tag without opening a web browser? ;)
+echo "Latest Release Tag = ${PACKAGE_VER}"
+
+# Just hand over the tarball and nobody gets hurt, ya see?
+echo "Fetching https://github.com/asbru-cm/asbru-cm/releases/download/${PACKAGE_VER}/${PACKAGE_NAME}-${PACKAGE_VER}.tar.gz..."
+
+if [ -x "$(command -v curl)" ]; then
+  HTTP_CODE=$(curl -s -w '%{http_code}' -L "https://github.com/asbru-cm/asbru-cm/releases/download/${PACKAGE_VER}/${PACKAGE_NAME}-${PACKAGE_VER}.tar.gz" \
+    -o "${PACKAGE_DIR}/${PACKAGE_NAME}_${PACKAGE_VER}.orig.tar.gz")
+elif [ -x "$(command -v wget)" ]; then
+  HTTP_CODE=$(wget -q -O "${PACKAGE_DIR}/${PACKAGE_NAME}_${PACKAGE_VER}.orig.tar.gz" --server-response \
+    "https://github.com/asbru-cm/asbru-cm/releases/download/${PACKAGE_VER}/${PACKAGE_NAME}-${PACKAGE_VER}.tar.gz" 2>&1 |
+    awk '/^  HTTP/{print $2}' | tail -1)
+fi
+
+# I accidentally shot Marvin in the face.... :-/
+if [ "${HTTP_CODE}" != 200 ]; then
+  echo "Request to GitHub for latest release file failed with code ${HTTP_CODE}."
+  exit 1
+fi
 
 # Error out of the script if no file was able to be downloaded
 if [ ! -f "${PACKAGE_DIR}/${PACKAGE_NAME}_${PACKAGE_VER}.orig.tar.gz" ]; then
   exit 1
 fi
 
-# Unpack the module in a directory equivalent to its CPAN name with version
+# Unpack the tarball in the build directory
+echo "Unpacking the release archive..."
 tar -xzf "${PACKAGE_DIR}"/${PACKAGE_NAME}_"${PACKAGE_VER}".orig.tar.gz -C "${PACKAGE_DIR}"
 
-# Copy our Debian packaging files into the same directory as the source code
+# Copy our Debian packaging files into the same directory as the unpacked source code
 cp -R debian/ "${PACKAGE_DIR}"/${PACKAGE_NAME}-"${PACKAGE_VER}"/
 
 # Make that source+packaging directory the new working directory
@@ -63,4 +98,8 @@ perl -i -pe "s/unstable/$(lsb_release -cs)/" debian/changelog
 echo -n "Building package ${PACKAGE_NAME}_${PACKAGE_VER}_${PACKAGE_ARCH}.deb, please be patient..."
 
 # Call debuild to oversee the build process and produce an output string for the user based on its exit code
-debuild -F -us -uc && echo "${OK} I have good news! ${PACKAGE_NAME}_${PACKAGE_VER}_${PACKAGE_ARCH}.deb was successfully built in ${PACKAGE_DIR} :)" || echo "${ERROR} I have bad news; the build process was unable to complete successfully. Please check the ${PACKAGE_NAME}_${PACKAGE_VER}_${PACKAGE_ARCH}.build file in ${PACKAGE_DIR} to get more information."
+debuild -F -us -uc && echo "${OK} I have good news! ${PACKAGE_NAME}_${PACKAGE_VER}_${PACKAGE_ARCH}.deb was successfully built in ${PACKAGE_DIR} :)" ||
+  echo "${ERROR} I have bad news; the build process was unable to complete successfully. Please check the \
+  ${PACKAGE_NAME}_${PACKAGE_VER}_${PACKAGE_ARCH}.build file in ${PACKAGE_DIR} to get more information."
+
+exit 0

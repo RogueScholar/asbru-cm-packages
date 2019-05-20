@@ -10,6 +10,7 @@ jobs:
   scripts_test_and_store:
     executor: ubuntu-disco
     environment:
+      SNAPCRAFT_SETUP_CORE: "1"
       GOPATH: "/home/circleci/go"
       GOROOT: "/usr/lib/go-1.12"
       GOBIN: "/home/circleci/go/bin"
@@ -18,14 +19,20 @@ jobs:
       - run:
           name: Install shellcheck and shfmt3
           command: |
-            set +e && set +o pipefail
-            sudo apt update && sudo apt full-upgrade -y
-            sudo apt install -y add-apt-key apt-transport-https apt-utils bash curl git gnupg shellcheck snapd-xdg-open snapd software-properties-common
+            set +e
+            set +o pipefail
+            sudo apt update
+            sudo apt full-upgrade -y
+            sudo apt install -y add-apt-key apt-transport-https apt-utils curl git gnupg shellcheck snapd-xdg-open snapd software-properties-common
+            sudo systemctl restart snapd
+            sleep 5
+            sudo snap install --edge core18
             sudo snap install shfmt
       - run:
           name: Test shell scripts and record file stats
           command: |
-            set +e && set +o pipefail
+            set +e
+            set +o pipefail
             mkdir -p /home/circleci/script-test-reports
             echo "Calculating script file stats..."
             find . -type f -name '*.sh' | xargs wc -lmw 2>&1 | tee -a /home/circleci/script-test-reports/script-file-stats.txt
@@ -50,6 +57,9 @@ jobs:
       - run:
           name: Build libgnome2-gconf-perl
           command: cd /home/circleci/packages/libgnome2-gconf-perl && ./make_debian.sh
+      - persist_to_workspace:
+          root: /home/circleci/packages
+          paths: libgnome2-gconf-perl/tmp/libgnome2-gconf-perl_1.044-6_amd64.deb
       - store_artifacts:
           path: /home/circleci/packages/libgnome2-gconf-perl/tmp/libgnome2-gconf-perl_1.044-6_amd64.deb
       - store_artifacts:
@@ -63,6 +73,9 @@ jobs:
       - run:
           name: Build libgnome2-vte-perl
           command: cd /home/circleci/packages/libgnome2-vte-perl && ./make_debian.sh
+      - persist_to_workspace:
+          root: /home/circleci/packages
+          paths: libgnome2-vte-perl/tmp/libgnome2-vte-perl_0.11-2_amd64.deb
       - store_artifacts:
           path: /home/circleci/packages/libgnome2-vte-perl/tmp/libgnome2-vte-perl_0.11-2_amd64.deb
       - store_artifacts:
@@ -76,6 +89,9 @@ jobs:
       - run:
           name: Build libgtk2-ex-simple-list-perl
           command: cd /home/circleci/packages/libgtk2-ex-simple-list-perl && ./make_debian.sh
+      - persist_to_workspace:
+          root: /home/circleci/packages
+          paths: libgtk2-ex-simple-list-perl/tmp/libgtk2-ex-simple-list-perl_0.50-3_all.deb
       - store_artifacts:
           path: /home/circleci/packages/libgtk2-ex-simple-list-perl/tmp/libgtk2-ex-simple-list-perl_0.50-3_all.deb
       - store_artifacts:
@@ -87,6 +103,9 @@ jobs:
       - run:
           name: Build libgtk2-gladexml-perl
           command: cd /home/circleci/packages/libgtk2-gladexml-perl && ./make_debian.sh
+      - persist_to_workspace:
+          root: /home/circleci/packages
+          paths: libgtk2-gladexml-perl/tmp/libgtk2-gladexml-perl_1.007-2_amd64.deb
       - store_artifacts:
           path: /home/circleci/packages/libgtk2-gladexml-perl/tmp/libgtk2-gladexml-perl_1.007-2_amd64.deb
       - store_artifacts:
@@ -100,6 +119,9 @@ jobs:
       - run:
           name: Build libgtk2-unique-perl
           command: cd /home/circleci/packages/libgtk2-unique-perl && ./make_debian.sh
+      - persist_to_workspace:
+          root: /home/circleci/packages
+          paths: libgtk2-unique-perl/tmp/libgtk2-unique-perl_0.05-3_amd64.deb
       - store_artifacts:
           path: /home/circleci/packages/libgtk2-unique-perl/tmp/libgtk2-unique-perl_0.05-3_amd64.deb
       - store_artifacts:
@@ -110,14 +132,6 @@ jobs:
           path: /home/circleci/packages/libgtk2-unique-perl/tmp/libgtk2-unique-perl_0.05-3_amd64.changes
       - store_artifacts:
           path: /home/circleci/packages/libgtk2-unique-perl/tmp/libgtk2-unique-perl_0.05-3_amd64.buildinfo
-      - persist_to_workspace:
-          root: /home/circleci/packages
-          paths:
-            - libgnome2-gconf-perl/tmp/libgnome2-gconf-perl_1.044-6_amd64.deb
-            - libgnome2-vte-perl/tmp/libgnome2-vte-perl_0.11-2_amd64.deb
-            - libgtk2-ex-simple-list-perl/tmp/libgtk2-ex-simple-list-perl_0.50-3_all.deb
-            - libgtk2-gladexml-perl/tmp/libgtk2-gladexml-perl_1.007-2_amd64.deb
-            - libgtk2-unique-perl/tmp/libgtk2-unique-perl_0.05-3_amd64.deb
   build_asbru_deb_and_save:
     executor: ubuntu-disco
     steps:
@@ -166,7 +180,7 @@ jobs:
       - run:
           name: Update dnf and install build dependencies
           command: >
-            dnf -y upgrade && dnf -y install bash coreutils curl diffutils gcc git jq make patch python rpm-build rpm-devel
+            dnf -y upgrade && dnf -y install bash coreutils curl diffutils gcc git jq make patch python rpm-build rpm-devel wget
             rpmdevtools rpmlint sudo
       - checkout
       - run:
