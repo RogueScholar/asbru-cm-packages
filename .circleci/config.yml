@@ -161,9 +161,9 @@ jobs:
     working_directory: /home/circleci/packages
     steps:
       - checkout
-      -run:
-        name: Update dnf and install build dependencies
-        command: sudo dnf -y upgrade && sudo dnf -y install bash coreutils curl diffutils gcc jq make patch python rpm-build rpm-devel rpmdevtools rpmlint
+      - run:
+          name: Update dnf and install build dependencies
+          command: sudo dnf -y upgrade && sudo dnf -y install bash coreutils curl diffutils gcc jq make patch python rpm-build rpm-devel rpmdevtools rpmlint
       - run:
           name: Build asbru-cm RPM package
           command: cd /home/circleci/packages/asbru-cm && ./make_rpm.sh
