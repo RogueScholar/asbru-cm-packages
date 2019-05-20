@@ -12,7 +12,7 @@ jobs:
           name: Install shellcheck and shfmt v3
           command: |
             set +e && set +o pipefail
-            sudo apt update && sudo apt full-upgrade -y && sudo apt install -y coreutils software-properties-common add-apt-key apt-utils
+            sudo apt update && sudo apt full-upgrade -y && sudo apt install -y add-apt-key apt-utils isoquery lsb software-properties-common
             sudo apt-add-repository -ysu ppa:roguescholar/ppa
             sudo apt install -y bash git golang-1.12 shellcheck
             mkdir -p /home/circleci/go && export GOPATH="/home/circleci/go" && export GOROOT="/usr/lib/go-1.12" && export PATH="$PATH:$GOROOT/bin:$GOPATH/bin"
@@ -20,10 +20,11 @@ jobs:
       - run:
           name: Test shell scripts and record file stats
           command: |
-            echo "Running shell script tests..."
             set +e && set +o pipefail
             mkdir ~/test-reports
-            find . -type f -name '*.sh' | wc -l 2>&1 | tee /home/circleci/test-reports/script-file-stats.txt
+            echo "Calculating script file stats..."
+            find . -type f -name '*.sh' | xargs wc -lmw 2>&1 | tee /home/circleci/test-reports/script-file-stats.txt
+            echo "Running shell script tests..."
             find . -type f -name '*.sh' | xargs shellcheck -ax -s bash 2>&1 | tee -a /home/circleci/test-reports/shellcheck-output.txt
             find . -type f -name '*.sh' | xargs shfmt -p -d -i 2 -ci -s 2>&1 | tee -a /home/circleci/test-reports/shfmt3-output.txt
       - store_artifacts:
@@ -32,16 +33,16 @@ jobs:
   build_libs_and_save:
     docker:
       - image: circleci/buildpack-deps:disco
+    shell: /bin/bash
     working_directory: /home/circleci/packages
     steps:
       - checkout
       - run:
           name: Update apt and install build dependencies
-          command: >
-            sudo apt update && sudo apt install -y bash build-essential
-            debhelper devscripts git libgconf2-dev libvte-dev libgtk2-perl
-            libextutils-pkgconfig-perl libextutils-depends-perl
-            software-properties-common
+          command: |
+            sudo apt update && sudo apt full-upgrade -y && sudo apt install -y adequate apt-utils autopkgtest bash binutils-multiarch build-essential \
+            debhelper debtags devscripts dh-acc dh-make dselect groff libgconf2-dev libglade2-dev libglib-perl libgtk2-perl libvte-dev libgtk2-perl \
+            libextutils-pkgconfig-perl libextutils-depends-perl libunique-dev lsb perl software-properties-common quilt xauth xfonts-base xvfb
       - run:
           name: Build libgnome2-gconf-perl
           command: cd /home/circleci/packages/libgnome2-gconf-perl && ./make_debian.sh
@@ -67,20 +68,18 @@ jobs:
       - store_artifacts:
           path: /home/circleci/packages/libgnome2-vte-perl/tmp/libgnome2-vte-perl_0.11-2_amd64.changes
       - store_artifacts:
-          path: /home/circleci/packages/libgnome2-vte-perl/tmp/libgnome2-vte-perl_0.11-2_source.buildinfo
+          path: /home/circleci/packages/libgnome2-vte-perl/tmp/libgnome2-vte-perl_0.11-2_amd64.buildinfo
       - run:
           name: Build libgtk2-ex-simple-list-perl
           command: cd /home/circleci/packages/libgtk2-ex-simple-list-perl && ./make_debian.sh
       - store_artifacts:
-          path: /home/circleci/packages/libgtk2-ex-simple-list-perl/tmp/libgtk2-ex-simple-list-perl_0.50-3_amd64.deb
-      - store_artifacts:
-          path: /home/circleci/packages/libgtk2-ex-simple-list-perl/tmp/libgtk2-ex-simple-list-perl-dbgsym_0.50-3_amd64.ddeb
+          path: /home/circleci/packages/libgtk2-ex-simple-list-perl/tmp/libgtk2-ex-simple-list-perl_0.50-3_all.deb
       - store_artifacts:
           path: /home/circleci/packages/libgtk2-ex-simple-list-perl/tmp/libgtk2-ex-simple-list-perl_0.50-3.dsc
       - store_artifacts:
           path: /home/circleci/packages/libgtk2-ex-simple-list-perl/tmp/libgtk2-ex-simple-list-perl_0.50-3_amd64.changes
       - store_artifacts:
-          path: /home/circleci/packages/libgtk2-ex-simple-list-perl/tmp/libgtk2-ex-simple-list-perl_0.50-3_source.buildinfo
+          path: /home/circleci/packages/libgtk2-ex-simple-list-perl/tmp/libgtk2-ex-simple-list-perl_0.50-3_amd64.buildinfo
       - run:
           name: Build libgtk2-gladexml-perl
           command: cd /home/circleci/packages/libgtk2-gladexml-perl && ./make_debian.sh

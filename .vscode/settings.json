@@ -1,0 +1,21 @@
+{
+	"cSpell.words": [
+		"CPAN",
+		"dbus",
+		"gconf",
+		"gdebi",
+		"gladexml",
+		"libextutils",
+		"libgconf",
+		"libglade",
+		"libglib",
+		"libgnome",
+		"libgtk",
+		"libvte",
+		"linunique",
+		"qapt",
+		"xauth",
+		"xfonts",
+		"xvfb"
+	]
+}
