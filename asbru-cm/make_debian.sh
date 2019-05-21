@@ -62,11 +62,11 @@ echo "Latest Release Tag = ${PACKAGE_VER}"
 echo "Fetching https://github.com/asbru-cm/asbru-cm/releases/download/${PACKAGE_VER}/${PACKAGE_NAME}-${PACKAGE_VER}.tar.gz..."
 
 if [ -x "$(command -v curl)" ]; then
-  HTTP_CODE=$(curl -s -w '%{http_code}' -L "https://github.com/asbru-cm/asbru-cm/releases/download/${PACKAGE_VER}/${PACKAGE_NAME}-${PACKAGE_VER}.tar.gz" \
+  HTTP_CODE=$(curl -s -w '%{http_code}' -L "https://github.com/asbru-cm/asbru-cm/archive/${PACKAGE_NAME}-${PACKAGE_VER}.tar.gz" \
     -o "${PACKAGE_DIR}/${PACKAGE_NAME}_${PACKAGE_VER}.orig.tar.gz")
 elif [ -x "$(command -v wget)" ]; then
   HTTP_CODE=$(wget -q -O "${PACKAGE_DIR}/${PACKAGE_NAME}_${PACKAGE_VER}.orig.tar.gz" --server-response \
-    "https://github.com/asbru-cm/asbru-cm/releases/download/${PACKAGE_VER}/${PACKAGE_NAME}-${PACKAGE_VER}.tar.gz" 2>&1 |
+    "https://github.com/asbru-cm/asbru-cm/archives/${PACKAGE_NAME}-${PACKAGE_VER}.tar.gz" 2>&1 |
     awk '/^  HTTP/{print $2}' | tail -1)
 fi
 
