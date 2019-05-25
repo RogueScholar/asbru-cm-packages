@@ -17,12 +17,12 @@ OK="${G}OK:${B}"
 ERROR="${Y}ERROR:${B}"
 
 # Information about the git repository, build environment and Perl module source saved to variables
-REPO_ROOT_DIR="$(git rev-parse --show-toplevel)"
 PACKAGE_NAME="libgtk2-ex-simple-list-perl"
-PACKAGE_DIR="${REPO_ROOT_DIR}/${PACKAGE_NAME}/tmp"
+PACKAGE_VER="0.50"
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+PACKAGE_DIR="${SCRIPT_DIR}/tmp"
 ORIG_PACKAGE_NAME="Gtk2-Ex-Simple-List-0.50"
 PACKAGE_SRC="https://cpan.metacpan.org/authors/id/R/RM/RMCFARLA/Gtk2-Perl-Ex/${ORIG_PACKAGE_NAME}.tar.gz"
-PACKAGE_VER="0.50"
 PACKAGE_ARCH="all"
 
 # Delete the build directory if it exists from earlier attempts and create it anew and empty
@@ -53,4 +53,4 @@ perl -i -pe "s/unstable/$(lsb_release -cs)/" debian/changelog
 echo -n "Building package ${PACKAGE_NAME}_${PACKAGE_VER}_${PACKAGE_ARCH}.deb, please be patient..."
 
 # Call debuild to oversee the build process and produce an output string for the user based on its exit code
-debuild -F -us -uc && echo "${OK} I have good news! ${PACKAGE_NAME}_${PACKAGE_VER}_${PACKAGE_ARCH}.deb was successfully built in ${PACKAGE_DIR} :)" || echo "${ERROR} I have bad news; the build process was unable to complete successfully. Please check the ${PACKAGE_NAME}_${PACKAGE_VER}_${PACKAGE_ARCH}.build file in ${PACKAGE_DIR} to get more information."
+debuild -b -uc && echo "${OK} I have good news! ${PACKAGE_NAME}_${PACKAGE_VER}_${PACKAGE_ARCH}.deb was successfully built in ${PACKAGE_DIR} :)" || echo "${ERROR} I have bad news; the build process was unable to complete successfully. Please check the ${PACKAGE_NAME}_${PACKAGE_VER}_${PACKAGE_ARCH}.build file in ${PACKAGE_DIR} to get more information."

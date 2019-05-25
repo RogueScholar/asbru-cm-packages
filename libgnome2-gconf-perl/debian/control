@@ -1,22 +1,22 @@
 Source: libgnome2-gconf-perl
-Maintainer: Ásbrú Project Team <contact@asbru-cm.net>
+Section: perl
 Priority: optional
-Build-Depends: debhelper (>= 9.20120312~),
-               perl,
-               dbus (>= 1.8),
-               libextutils-depends-perl,
-               libextutils-pkgconfig-perl,
-               libgconf2-dev,
-               libglib-perl
-Standards-Version: 3.9.8
+Maintainer: Ásbrú Project Team <contact@asbru-cm.net>
+Uploaders: Peter J. Mello <admin@petermello.net>
+Build-Depends: debhelper-compat (= 11), perl (>= 5.8.0), dbus (>= 1.8),
+ libglib-perl (>= 1:1.120), libgconf2-dev (>= 2.1.90),
+ libextutils-depends-perl (>= 0.201), libextutils-pkgconfig-perl (>= 1.03)
+Standards-Version: 4.3.0
 Homepage: http://gtk2-perl.sourceforge.net/
+Vcs-Browser: https://gitlab.gnome.org/GNOME/perl-gnome2-gconf
+Vcs-Git: https://gitlab.gnome.org/GNOME/perl-gnome2-gconf.git
+Testsuite: autopkgtest-pkg-perl
+Rules-Requires-Root: no
 
 Package: libgnome2-gconf-perl
 Architecture: any
-Depends: ${perl:Depends},
-         ${shlibs:Depends},
-         ${misc:Depends},
-         libglib-perl
+Depends: libglib-perl (>= 1:1.120), ${perl:Depends}, ${shlibs:Depends},
+ ${misc:Depends}
 Description: Perl interface to the GNOME GConf library
  Gnome2::GConf allows a perl developer to use the GConf 
  configuration system to store/retrieve the configuration of an
@@ -27,7 +27,7 @@ Description: Perl interface to the GNOME GConf library
  changes of the value to every program that monitors those keys.
  GConf is used by GNOME 2.x.
  .
- Find out more about GNOME at http://www.gnome.org.
+ Find out more about GNOME at https://www.gnome.org/.
  .
  The perl bindings follow the C API very closely, and the C reference
  documentation should be considered the canonical source:

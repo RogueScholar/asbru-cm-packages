@@ -5,5 +5,8 @@ export DEB_BUILD_MAINT_OPTIONS = hardening=+bindnow
 %:
 	dh $@
 
+override_dh_auto_build:
+	$(MAKE) MAN3EXT=3
+
 override_dh_auto_test:
 	dbus-run-session -- dh_auto_test

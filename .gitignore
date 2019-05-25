@@ -1,4 +1,4 @@
-# Visual Studio Code installation-specific files
+# All but four Visual Studio Code files are installation-specific
 .vscode/*
 !.vscode/settings.json
 !.vscode/tasks.json
@@ -14,9 +14,8 @@
 *.tmPreferences.cache
 *.stTheme.cache
 
-# Sublime Text files are user-specific
+# Sublime Text workspace files are user-specific
 *.sublime-workspace
-*.sublime-project
 
 # Sublime Text SFTP configuration/credentials file
 sftp-config.json
@@ -52,3 +51,8 @@ libgnome2-vte-perl/tmp
 libgtk2-ex-simple-list-perl/tmp
 libgtk2-gladexml-perl/tmp
 libgtk2-unique-perl/tmp
+*/.debhelper
+*/*.debhelper.log
+*/debhelper-build-stamp
+*/files
+*/*.substvars

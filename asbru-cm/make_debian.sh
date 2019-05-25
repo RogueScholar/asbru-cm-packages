@@ -1,12 +1,13 @@
 #!/usr/bin/env bash
 
-# Exit script if you try to use an uninitialized variable.
+# Exit script if an uninitialized variable is called
 set -o nounset
 
-# Exit script if a statement returns a non-true return value.
+# Exit script if a statement produces a non-true return value
 set -o errexit
 
-# Use the error status of the first failure, rather than that of the last item in a pipeline.
+# If there is a failure in a pipeline, return the error status of the
+# first failed process rather than the last command in the sequence
 set -o pipefail
 
 # Some ANSI escape color goodness
@@ -17,8 +18,8 @@ OK="${G}OK:${B}"
 ERROR="${Y}ERROR:${B}"
 
 # Information about the git repository and build directory saved to variables
-REPO_ROOT_DIR="$(git rev-parse --show-toplevel)"
-PACKAGE_DIR="${REPO_ROOT_DIR}/asbru-cm/tmp"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
+PACKAGE_DIR="${SCRIPT_DIR}/tmp"
 PACKAGE_NAME="asbru-cm"
 PACKAGE_ARCH="$(dpkg --print-architecture)"
 
@@ -59,14 +60,14 @@ fi
 echo "Latest Release Tag = ${PACKAGE_VER}"
 
 # Just hand over the tarball and nobody gets hurt, ya see?
-echo "Fetching https://github.com/asbru-cm/asbru-cm/releases/download/${PACKAGE_VER}/${PACKAGE_NAME}-${PACKAGE_VER}.tar.gz..."
+echo "Downloading https://github.com/asbru-cm/asbru-cm/archive/${PACKAGE_VER}.tar.gz..."
 
 if [ -x "$(command -v curl)" ]; then
-  HTTP_CODE=$(curl -s -w '%{http_code}' -L "https://github.com/asbru-cm/asbru-cm/archive/${PACKAGE_NAME}-${PACKAGE_VER}.tar.gz" \
+  HTTP_CODE=$(curl -s -w '%{http_code}' -L "https://github.com/asbru-cm/asbru-cm/archive/${PACKAGE_VER}.tar.gz" \
     -o "${PACKAGE_DIR}/${PACKAGE_NAME}_${PACKAGE_VER}.orig.tar.gz")
 elif [ -x "$(command -v wget)" ]; then
   HTTP_CODE=$(wget -q -O "${PACKAGE_DIR}/${PACKAGE_NAME}_${PACKAGE_VER}.orig.tar.gz" --server-response \
-    "https://github.com/asbru-cm/asbru-cm/archives/${PACKAGE_NAME}-${PACKAGE_VER}.tar.gz" 2>&1 |
+    "https://github.com/asbru-cm/asbru-cm/archive/${PACKAGE_VER}.tar.gz" 2>&1 |
     awk '/^  HTTP/{print $2}' | tail -1)
 fi
 
@@ -91,15 +92,17 @@ cp -R debian/ "${PACKAGE_DIR}"/${PACKAGE_NAME}-"${PACKAGE_VER}"/
 # Make that source+packaging directory the new working directory
 cd "${PACKAGE_DIR}"/${PACKAGE_NAME}-"${PACKAGE_VER}"
 
+# Append non-destructive "~local" suffix to version number to indicate a local build
+perl -i -pe "s/$(grep -P -m 1 -o "\d*\.\d*-\d*" debian/changelog)/$&~local/" debian/changelog
+
 # Replace the generic distribution string "unstable" with the distribution code-name of the build system
-perl -i -pe "s/unstable/$(lsb_release -cs)/" debian/changelog
+sed -i "1s/unstable/$(lsb_release -cs)/" debian/changelog
 
 # Warn user of potentially lengthy process ahead
 echo -n "Building package ${PACKAGE_NAME}_${PACKAGE_VER}_${PACKAGE_ARCH}.deb, please be patient..."
 
 # Call debuild to oversee the build process and produce an output string for the user based on its exit code
-debuild -F -us -uc && echo "${OK} I have good news! ${PACKAGE_NAME}_${PACKAGE_VER}_${PACKAGE_ARCH}.deb was successfully built in ${PACKAGE_DIR} :)" ||
-  echo "${ERROR} I have bad news; the build process was unable to complete successfully. Please check the \
-  ${PACKAGE_NAME}_${PACKAGE_VER}_${PACKAGE_ARCH}.build file in ${PACKAGE_DIR} to get more information."
-
-exit 0
+debuild -b -us -uc && echo "${OK} I have good news! ${PACKAGE_NAME}_${PACKAGE_VER}_${PACKAGE_ARCH}.deb was \
+successfully built in ${PACKAGE_DIR} :)" || echo "${ERROR} I have bad news; the build process was unable to \
+complete successfully. Please check the ${PACKAGE_NAME}_${PACKAGE_VER}_${PACKAGE_ARCH}.build file in \
+${PACKAGE_DIR} to get more information."

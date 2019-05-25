@@ -17,12 +17,12 @@ OK="${G}OK:${B}"
 ERROR="${Y}ERROR:${B}"
 
 # Information about the git repository, build environment and Perl module source saved to variables
-REPO_ROOT_DIR="$(git rev-parse --show-toplevel)"
 PACKAGE_NAME="libgnome2-vte-perl"
-PACKAGE_DIR="${REPO_ROOT_DIR}/${PACKAGE_NAME}/tmp"
+PACKAGE_VER="0.11"
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+PACKAGE_DIR="${SCRIPT_DIR}/tmp"
 ORIG_PACKAGE_NAME="Gnome2-Vte-0.11"
 PACKAGE_SRC="https://cpan.metacpan.org/authors/id/X/XA/XAOC/${ORIG_PACKAGE_NAME}.tar.gz"
-PACKAGE_VER="0.11"
 PACKAGE_ARCH="$(dpkg --print-architecture)"
 
 # Delete the build directory if it exists from earlier attempts and create it anew and empty
