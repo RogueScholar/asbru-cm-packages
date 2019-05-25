@@ -1,20 +1,48 @@
-asbru-cm (5.2.0-1) unstable; urgency=medium
+asbru-cm (5.2.0-1) unstable; urgency=low
 
-  * Upstream 5.2.0 release
+  * Fixed: crash when creating a RDP connection
+  * Fixed: wrong tooltip for session log numbers
+  * Fixed: Perl script redundant execution
+  * Fixed: dependency on dbus-x11 added in Debian package
+  * Update split panes separator handling (Alberto Rinaudo)
+  * Retrieve terminal method inside scripts
+  * Support for FreeBSD login
+  * Add option to change main window title with terminal title (Andrey Kuzmin)
+  * Better access to the "Info" tab
 
- -- Ásbrú Project Team <contact@asbru-cm.net> Fri, 19 Apr 2019 13:56:29 +0200
+ -- Ásbrú Project Team <contact@asbru-cm.net>  Fri, 19 Apr 2019 13:56:29 +0200
 
-asbru-cm (5.1.0-1) unstable; urgency=medium
+asbru-cm (5.1.0-1) unstable; urgency=low
 
-  * Upstream 5.1.0 release
+  * Fixed: application crash on connection delete
+  * Fixed: quote user/pass when calling xfreerdp
+  * Fixed: split feature no longer inverts horizontal/vertical (V.Gouvalas)
+  * Fixed: removed deprecated "have" function (Daniel Augustin)
+  * Fixed: don't clobber key-accelerators not used by Ásbrú, pass them to
+    terminal widget (Michael Postmann)
+  * Fixed: do not re-open connections list when hidden when switching tabs
+  * Fixed: canceling user input dialogs cause connection failure
+  * Added option to auto hide main buttons bar (Luke F.)
+  * Reduce height of macro buttons (Luke F.)
+  * Improved group name semantics; append instead of prepend (V.Gouvalas)
+  * Added "close disconnected terminals" option to terminal context menu
+  * Changed default value for connection config "auto save" to ON
+  * Included Ansible playbook for unattended installs (nomike)
 
- -- Ásbrú Project Team <contact@asbru-cm.net> Mon, 23 Jul 2018 20:56:29 +0100
+ -- Ásbrú Project Team <contact@asbru-cm.net>  Mon, 23 Jul 2018 20:56:29 +0100
 
-asbru-cm (5.0.0-1) unstable; urgency=medium
+asbru-cm (5.0.0-1) unstable; urgency=low
 
-  * Upstream 5.0.0 release
+  * Fixed: SSH advanced options
+  * Fixed: segmentation fault on exit
+  * Fixed: maximized window state not correctly saved
+  * Added new keyboard shortcut (Ctrl+Shift+R) to restart a session
+  * Added script to import connections from SuperPutty
+  * Added dash sign (-) when the parent folder is empty
+  * Changed terminal icons
+  * Improved Debian packaging
 
- -- Klaas tammling <klaas@tammling.hamburg> Fri, 29 Dec 2017 10:55:29 +0100
+ -- Klaas Tammling <klaas@tammling.hamburg>  Fri, 29 Dec 2017 10:55:29 +0100
 
 asbru-cm (5.0.0~rc4-1) unstable; urgency=medium
 
@@ -45,7 +73,7 @@ asbru-cm (5.0.0~rc2-2) unstable; urgency=medium
 
   * New dependency for libgnome2-vte-perl added
 
- -- Klaas Tammling <ktammling@localhost.localdomain>  Sun, 01 Oct 2017 10:11:33 +0200
+ -- Klaas Tammling <klaas@tammling.hamburg>  Sun, 01 Oct 2017 10:11:33 +0200
 
 asbru-cm (5.0.0~rc2-1) unstable; urgency=medium
 
@@ -53,7 +81,7 @@ asbru-cm (5.0.0~rc2-1) unstable; urgency=medium
   * Correcting some scripts and versioning.
   * Added dependencies needed to run Asbru
 
- -- Klaas Tammling <ktammling@localhost.localdomain>  Thu, 28 Sep 2017 17:58:42 +0200
+ -- Klaas Tammling <klaas@tammling.hamburg>  Thu, 28 Sep 2017 17:58:42 +0200
 
 asbru-cm (5.0.0-rc1-1) unstable; urgency=medium
 
