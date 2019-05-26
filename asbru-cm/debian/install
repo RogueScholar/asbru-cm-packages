@@ -4,4 +4,4 @@ res /opt/asbru/
 utils /opt/asbru/
 res/asbru-cm.desktop /usr/share/applications/
 res/asbru-cm.1 /usr/share/man/man1/
-res/asbru_bash_completion /etc/bash_completion.d/
+res/asbru_bash_completion /usr/share/bash-completion/completions/
