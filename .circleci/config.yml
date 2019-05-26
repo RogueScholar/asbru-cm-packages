@@ -6,10 +6,6 @@ executors:
       - image: circleci/buildpack-deps:disco
     shell: /bin/bash
     working_directory: /home/circleci/packages
-    environment:
-      DEBUILD_DPKG_BUILDPACKAGE_OPTS: "-D -F -sa"
-      DEBUILD_LINTIAN_OPTS: "-E -I -i --pedantic"
-      DH_VERBOSE: "1"
 jobs:
   scripts_test_and_store:
     executor: ubuntu-disco
@@ -24,18 +20,17 @@ jobs:
           command: |
             sudo apt update
             sudo apt full-upgrade -y
-            sudo apt install -y add-apt-key apt-transport-https apt-utils golang-1.11 golang-1.11-race-detector-runtime shellcheck \
+            sudo apt install -y add-apt-key apt-transport-https apt-utils \
+            golang-1.11 golang-1.11-race-detector-runtime shellcheck \
             software-properties-common
       - run:
           name: Install shfmt v3
           command: |
-            export PATH="$PATH:$GOROOT/bin:$GOBIN"
             mkdir -p $GOBIN
-            sudo go get mvdan.cc/sh/v3/cmd/shfmt
-            sudo go install mvdan.cc/sh/v3/cmd/shfmt
+            export PATH="$PATH:$GOROOT/bin:$GOBIN"
             cd $(mktemp -d); go mod init tmp; go get mvdan.cc/sh/v3/cmd/shfmt
             go build mvdan.cc/sh/v3/cmd/shfmt
-            sudo cp ./shfmt /usr/local/bin
+            command -v shfmt || sudo cp ./shfmt /usr/local/bin
       - run:
           name: Test shell scripts and record file stats
           command: |
@@ -43,28 +38,37 @@ jobs:
             set +o pipefail
             mkdir -p /home/circleci/script-test-reports
             echo "Calculating script file stats..."
-            find . -type f -name '*.sh' | xargs wc -lmw 2>&1 | tee -a /home/circleci/script-test-reports/script-file-stats.txt
+            find /home/circleci/packages -type f -name '*.sh' | xargs wc -lmw 2>&1 | tee -a /home/circleci/script-test-reports/script-file-stats.txt
             echo "Running shellcheck tests..."
-            find . -type f -name '*.sh' | xargs shellcheck -ax -s bash 2>&1 | tee -a /home/circleci/script-test-reports/shellcheck-output.txt
+            find /home/circleci/packages -type f -name '*.sh' | xargs shellcheck -ax -s bash 2>&1 | tee -a /home/circleci/script-test-reports/shellcheck-output.txt
             echo "Running shfmt tests..."
-            find . -type f -name '*.sh' | xargs shfmt -d -ci -s -i 2 2>&1 | tee -a /home/circleci/script-test-reports/shfmt3-output.txt
+            find /home/circleci/packages -type f -name '*.sh' | xargs shfmt -d -ci -s -i 2 2>&1 | tee -a /home/circleci/script-test-reports/shfmt3-output.txt
       - store_artifacts:
           path: /home/circleci/script-test-reports
           destination: script-tests
   build_libs_and_save:
     executor: ubuntu-disco
+    parallelism: 4
+    environment:
+      DEBUILD_LINTIAN_OPTS: "-E -I -i --pedantic"
+      DH_VERBOSE: "1"
     steps:
       - checkout
       - run:
           name: Update apt and install build dependencies
           command: >
-            sudo apt update && sudo apt full-upgrade -y && sudo apt install -y adequate apt-transport-https apt-utils autopkgtest bash
-            binutils-multiarch build-essential curl debhelper debtags devscripts dh-acc dh-make dselect gnupg groff libgconf2-dev libglade2-dev
-            libglib-perl libgtk2-perl libvte-dev libgtk2-perl libextutils-pkgconfig-perl libextutils-depends-perl libunique-dev perl
-            software-properties-common quilt wget xauth xfonts-base xvfb
+            sudo apt update && sudo apt full-upgrade -y && sudo apt install -y
+            apt-transport-https apt-utils autopkgtest binutils-multiarch
+            build-essential debhelper devscripts dh-acc dh-make groff
+            libgconf2-dev libglade2-dev libglib-perl libgtk2-perl libvte-dev
+            libgtk2-perl libextutils-pkgconfig-perl libextutils-depends-perl
+            libunique-dev software-properties-common quilt wget xauth
+            xfonts-base xvfb
       - run:
           name: Build libgnome2-gconf-perl
-          command: cd /home/circleci/packages/libgnome2-gconf-perl && ./make_debian.sh
+          command: |
+            cd /home/circleci/packages/libgnome2-gconf-perl
+            bash /home/circleci/packages/libgnome2-gconf-perl/make_debian.sh
       - persist_to_workspace:
           root: /home/circleci/packages/libgnome2-gconf-perl/tmp
           paths: libgnome2-gconf-perl_*.deb
@@ -78,104 +82,135 @@ jobs:
           path: /home/circleci/packages/libgnome2-gconf-perl/tmp/libgnome2-gconf-perl_1.044-7~asbru1_amd64.changes
       - store_artifacts:
           path: /home/circleci/packages/libgnome2-gconf-perl/tmp/libgnome2-gconf-perl_1.044-7~asbru1_amd64.buildinfo
+      - store_artifacts:
+          path: /home/circleci/packages/libgnome2-gconf-perl/tmp/libgnome2-gconf-perl_1.044-7~asbru1.debian.tar.xz
       - run:
           name: Build libgnome2-vte-perl
-          command: cd /home/circleci/packages/libgnome2-vte-perl && ./make_debian.sh
+          command: |
+            cd /home/circleci/packages/libgnome2-vte-perl
+            bash /home/circleci/packages/libgnome2-vte-perl/make_debian.sh
       - persist_to_workspace:
           root: /home/circleci/packages/libgnome2-vte-perl/tmp
           paths: libgnome2-vte-perl_*.deb
       - store_artifacts:
-          path: /home/circleci/packages/libgnome2-vte-perl/tmp/libgnome2-vte-perl_0.11-2_amd64.deb
+          path: /home/circleci/packages/libgnome2-vte-perl/tmp/libgnome2-vte-perl_0.11-2~asbru1_amd64.deb
       - store_artifacts:
-          path: /home/circleci/packages/libgnome2-vte-perl/tmp/libgnome2-vte-perl-dbgsym_0.11-2_amd64.ddeb
+          path: /home/circleci/packages/libgnome2-vte-perl/tmp/libgnome2-vte-perl-dbgsym_0.11-2~asbru1_amd64.ddeb
       - store_artifacts:
-          path: /home/circleci/packages/libgnome2-vte-perl/tmp/libgnome2-vte-perl_0.11-2.dsc
+          path: /home/circleci/packages/libgnome2-vte-perl/tmp/libgnome2-vte-perl_0.11-2~asbru1.dsc
       - store_artifacts:
-          path: /home/circleci/packages/libgnome2-vte-perl/tmp/libgnome2-vte-perl_0.11-2_amd64.changes
+          path: /home/circleci/packages/libgnome2-vte-perl/tmp/libgnome2-vte-perl_0.11-2~asbru1_amd64.changes
       - store_artifacts:
-          path: /home/circleci/packages/libgnome2-vte-perl/tmp/libgnome2-vte-perl_0.11-2_amd64.buildinfo
+          path: /home/circleci/packages/libgnome2-vte-perl/tmp/libgnome2-vte-perl_0.11-2~asbru1_amd64.buildinfo
+      - store_artifacts:
+          path: /home/circleci/packages/libgnome2-vte-perl/tmp/libgnome2-vte-perl_0.11-2~asbru1.debian.tar.xz
       - run:
           name: Build libgtk2-ex-simple-list-perl
-          command: cd /home/circleci/packages/libgtk2-ex-simple-list-perl && ./make_debian.sh
+          command: |
+            cd /home/circleci/packages/libgtk2-ex-simple-list-perl
+            bash /home/circleci/packages/libgtk2-ex-simple-list-perl/make_debian.sh
       - persist_to_workspace:
           root: /home/circleci/packages/libgtk2-ex-simple-list-perl/tmp
           paths: libgtk2-ex-simple-list-perl_*.deb
       - store_artifacts:
-          path: /home/circleci/packages/libgtk2-ex-simple-list-perl/tmp/libgtk2-ex-simple-list-perl_0.50-3_all.deb
+          path: /home/circleci/packages/libgtk2-ex-simple-list-perl/tmp/libgtk2-ex-simple-list-perl_0.50-3~asbru1_all.deb
       - store_artifacts:
-          path: /home/circleci/packages/libgtk2-ex-simple-list-perl/tmp/libgtk2-ex-simple-list-perl_0.50-3.dsc
+          path: /home/circleci/packages/libgtk2-ex-simple-list-perl/tmp/libgtk2-ex-simple-list-perl_0.50-3~asbru1.dsc
       - store_artifacts:
-          path: /home/circleci/packages/libgtk2-ex-simple-list-perl/tmp/libgtk2-ex-simple-list-perl_0.50-3_amd64.changes
+          path: /home/circleci/packages/libgtk2-ex-simple-list-perl/tmp/libgtk2-ex-simple-list-perl_0.50-3~asbru1_amd64.changes
       - store_artifacts:
-          path: /home/circleci/packages/libgtk2-ex-simple-list-perl/tmp/libgtk2-ex-simple-list-perl_0.50-3_amd64.buildinfo
+          path: /home/circleci/packages/libgtk2-ex-simple-list-perl/tmp/libgtk2-ex-simple-list-perl_0.50-3~asbru1_amd64.buildinfo
+      - store_artifacts:
+          path: /home/circleci/packages/libgtk2-ex-simple-list-perl/tmp/libgtk2-ex-simple-list-perl_0.50-3~asbru1.debian.tar.xz
       - run:
           name: Build libgtk2-gladexml-perl
-          command: cd /home/circleci/packages/libgtk2-gladexml-perl && ./make_debian.sh
+          command: |
+            cd /home/circleci/packages/libgtk2-gladexml-perl
+            bash /home/circleci/packages/libgtk2-gladexml-perl/make_debian.sh
       - persist_to_workspace:
           root: /home/circleci/packages/libgtk2-gladexml-perl/tmp
           paths: libgtk2-gladexml-perl_*.deb
       - store_artifacts:
-          path: /home/circleci/packages/libgtk2-gladexml-perl/tmp/libgtk2-gladexml-perl_1.007-2_amd64.deb
+          path: /home/circleci/packages/libgtk2-gladexml-perl/tmp/libgtk2-gladexml-perl_1.007-2~asbru1_amd64.deb
       - store_artifacts:
-          path: /home/circleci/packages/libgtk2-gladexml-perl/tmp/libgtk2-gladexml-perl-dbgsym_1.007-2_amd64.ddeb
+          path: /home/circleci/packages/libgtk2-gladexml-perl/tmp/libgtk2-gladexml-perl-dbgsym_1.007-2~asbru1_amd64.ddeb
       - store_artifacts:
-          path: /home/circleci/packages/libgtk2-gladexml-perl/tmp/libgtk2-gladexml-perl_1.007-2.dsc
+          path: /home/circleci/packages/libgtk2-gladexml-perl/tmp/libgtk2-gladexml-perl_1.007-2~asbru1.dsc
       - store_artifacts:
-          path: /home/circleci/packages/libgtk2-gladexml-perl/tmp/libgtk2-gladexml-perl_1.007-2_amd64.changes
+          path: /home/circleci/packages/libgtk2-gladexml-perl/tmp/libgtk2-gladexml-perl_1.007-2~asbru1_amd64.changes
       - store_artifacts:
-          path: /home/circleci/packages/libgtk2-gladexml-perl/tmp/libgtk2-gladexml-perl_1.007-2_amd64.buildinfo
+          path: /home/circleci/packages/libgtk2-gladexml-perl/tmp/libgtk2-gladexml-perl_1.007-2~asbru1_amd64.buildinfo
+      - store_artifacts:
+          path: /home/circleci/packages/libgtk2-gladexml-perl/tmp/libgtk2-gladexml-perl_1.007-2~asbru1.debian.tar.xz
       - run:
           name: Build libgtk2-unique-perl
-          command: cd /home/circleci/packages/libgtk2-unique-perl && ./make_debian.sh
+          command: |
+            cd /home/circleci/packages/libgtk2-unique-perl
+            bash /home/circleci/packages/libgtk2-unique-perl/make_debian.sh
       - persist_to_workspace:
           root: /home/circleci/packages/libgtk2-unique-perl/tmp
           paths: libgtk2-unique-perl_*.deb
       - store_artifacts:
-          path: /home/circleci/packages/libgtk2-unique-perl/tmp/libgtk2-unique-perl_0.05-3_amd64.deb
+          path: /home/circleci/packages/libgtk2-unique-perl/tmp/libgtk2-unique-perl_0.05-3~asbru1_amd64.deb
       - store_artifacts:
-          path: /home/circleci/packages/libgtk2-unique-perl/tmp/libgtk2-unique-perl-dbgsym_0.05-3_amd64.ddeb
+          path: /home/circleci/packages/libgtk2-unique-perl/tmp/libgtk2-unique-perl-dbgsym_0.05-3~asbru1_amd64.ddeb
       - store_artifacts:
-          path: /home/circleci/packages/libgtk2-unique-perl/tmp/libgtk2-unique-perl_0.05-3.dsc
+          path: /home/circleci/packages/libgtk2-unique-perl/tmp/libgtk2-unique-perl_0.05-3~asbru1.dsc
       - store_artifacts:
-          path: /home/circleci/packages/libgtk2-unique-perl/tmp/libgtk2-unique-perl_0.05-3_amd64.changes
+          path: /home/circleci/packages/libgtk2-unique-perl/tmp/libgtk2-unique-perl_0.05-3~asbru1_amd64.changes
       - store_artifacts:
-          path: /home/circleci/packages/libgtk2-unique-perl/tmp/libgtk2-unique-perl_0.05-3_amd64.buildinfo
+          path: /home/circleci/packages/libgtk2-unique-perl/tmp/libgtk2-unique-perl_0.05-3~asbru1_amd64.buildinfo
+      - store_artifacts:
+          path: /home/circleci/packages/libgtk2-unique-perl/tmp/libgtk2-unique-perl_0.05-3~asbru1.debian.tar.xz
   build_asbru_deb_and_save:
     executor: ubuntu-disco
+    environment:
+      DEBUILD_LINTIAN_OPTS: "-E -I -i --pedantic"
+      DH_VERBOSE: "1"
     steps:
       - checkout
       - run:
           name: Update apt and install build dependencies
           command: >
-            sudo apt update && sudo apt full-upgrade -y && sudo apt install -y apt-transport-https apt-utils autopkgtest bash binutils-multiarch
-            build-essential curl dbus-user-session debhelper devscripts dh-acc dh-make dh-make-perl dpkg ftp gconf-service gconf-service-backend
-            gconf2-common gnupg groff gtk2-engines-pixbuf libargon2-1 libcairo-perl libcanberra-gtk-module libcap2 libcrypt-blowfish-perl
-            libcrypt-cbc-perl libcrypt-rijndael-perl libcryptsetup12 libdbus-glib-1-2 libdevmapper1.02.1 libexpect-perl libgconf-2-4 libglade2-0
-            libglib-perl libgtk2-perl libip4tc0 libjson-c3 libnet-arp-perl libnet-proxy-perl libnss-systemd libossp-uuid-perl libpam-systemd
-            libpango-perl libsocket6-perl libunique-1.0-0 libvte9 libxml-parser-perl libyaml-perl openssh-client perl quilt
+            sudo apt update && sudo apt full-upgrade -y && sudo apt install -y
+            apt-transport-https apt-utils autopkgtest bash binutils-multiarch
+            build-essential curl dbus-user-session debhelper devscripts dh-acc
+            dh-make dh-make-perl dpkg ftp gconf-service gconf-service-backend
+            gconf2-common gnupg groff gtk2-engines-pixbuf libargon2-1
+            libcairo-perl libcanberra-gtk-module libcap2 libcrypt-blowfish-perl
+            libcrypt-cbc-perl libcrypt-rijndael-perl libcryptsetup12
+            libdbus-glib-1-2 libdevmapper1.02.1 libexpect-perl libgconf-2-4
+            libglade2-0 libglib-perl libgtk2-perl libip4tc0 libjson-c3
+            libnet-arp-perl libnet-proxy-perl libnss-systemd libossp-uuid-perl
+            libpam-systemd libpango-perl libsocket6-perl libunique-1.0-0
+            libvte9 libxml-parser-perl libyaml-perl openssh-client perl quilt
             software-properties-common systemd systemd-sysv telnet wget
       - attach_workspace:
           at: /home/circleci/packages
       - run:
           name: Install library dependencies
-          command: find /home/circleci -type f -name 'lib*.deb' | sudo xargs dpkg -i
+          command: >
+            find /home/circleci -type f -name 'lib*.deb'
+            | sudo xargs dpkg -i
       - run:
           name: Build asbru-cm Debian package
-          command: cd /home/circleci/packages/asbru-cm && ./make_debian.sh
+          command: |
+            cd /home/circleci/packages/asbru-cm
+            bash /home/circleci/packages/asbru-cm/make_debian.sh
       - persist_to_workspace:
           root: /home/circleci/packages/asbru-cm/tmp
           paths: asbru-cm_*.deb
       - store_artifacts:
-          path: /home/circleci/packages/asbru-cm/tmp/asbru-cm_5.2.0-1~local_amd64.deb
-      - store_artifacts:
-          path: /home/circleci/packages/asbru-cm/tmp/asbru-cm-dbgsym_5.2.0-1~local_amd64.ddeb
+          path: /home/circleci/packages/asbru-cm/tmp/asbru-cm_5.2.0-1~local_all.deb
       - store_artifacts:
           path: /home/circleci/packages/asbru-cm/tmp/asbru-cm_5.2.0-1~local.dsc
       - store_artifacts:
           path: /home/circleci/packages/asbru-cm/tmp/asbru-cm_5.2.0-1~local_amd64.changes
       - store_artifacts:
           path: /home/circleci/packages/asbru-cm/tmp/asbru-cm_5.2.0-1~local_amd64.buildinfo
-  build_asbru_rpm_and_save:
+      - store_artifacts:
+          path: /home/circleci/packages/asbru-cm/tmp/asbru-cm_5.2.0-1~local.debian.tar.xz
+  build_asbru_rpm_test_and_save:
     docker:
       - image: fedora:30
     shell: /bin/bash
@@ -184,7 +219,8 @@ jobs:
       - run:
           name: Update dnf and install build dependencies
           command: >
-            dnf -y upgrade && dnf -y install bash bash-completion coreutils curl diffutils ftp gcc git jq make patch perl pkgconfig python rpm-build
+            dnf -y upgrade && dnf -y --best install bash-completion findutils
+            ftp gcc git jq make patch perl pkgconfig python rpm-build
             rpm-devel rpmdevtools rpmlint sudo telnet vte wget
       - checkout
       - run:
@@ -193,17 +229,35 @@ jobs:
       - store_artifacts:
           path: /home/circleci/packages/asbru-cm/rpm/RPMS/noarch
           destination: rpm-package
+      - run:
+          name: Test package installation results with dnf
+          command: >
+            mkdir -p /home/circleci/rpm-test-reports; find /home/circleci
+            -type f -name 'asbru-cm*.rpm' | xargs dnf -yv install 2>&1 | tee
+            /home/circleci/rpm-test-reports/dnf-install.txt
+      - run:
+          name: Test package standards compliance with rpmlint
+          command: >
+            rpmlint -iv asbru-cm 2>&1 | tee
+            /home/circleci/rpm-test-reports/rpmlint.txt
+      - store_artifacts:
+          path: /home/circleci/rpm-test-reports
+          destination: rpm-package-tests
   test_deb_packages:
     executor: ubuntu-disco
     steps:
       - run:
           name: Update apt and install testing packages
           command: >
-            sudo apt update && sudo apt full-upgrade -y && sudo apt install -y add-apt-key adequate apt-transport-https apt-utils autopkgtest
-            dbus-x11 debhelper debtags fakeroot ftp gconf-service gtk2-engines-pixbuf libcairo-perl libcanberra-gtk-module libcrypt-blowfish-perl
-            libcrypt-cbc-perl libcrypt-rijndael-perl libexpect-perl libgconf-2-4 libglade2-0 libglib-perl libgtk2.0-0 libgtk2-perl libnet-arp-perl
-            libnet-proxy-perl libossp-uuid-perl libpango-perl libsocket6-perl libunique-1.0-0 libvte9 libyaml-perl lintian pbuilder piuparts schroot
-            software-properties-common telnet
+            sudo apt update && sudo apt full-upgrade -y && sudo apt install -y
+            add-apt-key adequate apt-transport-https apt-utils autopkgtest
+            dbus-x11 debhelper debtags fakeroot ftp gconf-service
+            gtk2-engines-pixbuf libcairo-perl libcanberra-gtk-module
+            libcrypt-blowfish-perl libcrypt-cbc-perl libcrypt-rijndael-perl
+            libexpect-perl libgconf-2-4 libglade2-0 libglib-perl libgtk2.0-0
+            libgtk2-perl libnet-arp-perl libnet-proxy-perl libossp-uuid-perl
+            libpango-perl libsocket6-perl libunique-1.0-0 libvte9 libyaml-perl
+            lintian pbuilder piuparts schroot software-properties-common telnet
       - attach_workspace:
           at: deb_packages
       - run:
@@ -213,22 +267,34 @@ jobs:
             sudo apt -yf install
       - run:
           name: Add packagecloud.io repository for upgrade tests
-          command: |
-            curl -L https://packagecloud.io/asbru-cm/asbru-cm/gpgkey | sudo apt-key add -
-            sudo apt-add-repository -ysu 'deb https://packagecloud.io/asbru-cm/asbru-cm/ubuntu/ disco main'
+          command: >
+            curl -L https://packagecloud.io/asbru-cm/asbru-cm/gpgkey | sudo
+            apt-key add -; sudo apt-add-repository -ysu
+            'deb https://packagecloud.io/asbru-cm/asbru-cm/ubuntu/ disco main'
       - run:
           name: Test package installation results with adequate
           command: >
             mkdir -p /home/circleci/deb-test-reports;
-            echo "Testing library package install results with adequate...";
-            adequate libgnome2-gconf-perl libgnome2-vte-perl libgtk2-ex-simple-list-perl libgtk2-gladexml-perl libgtk2-unique-perl asbru-cm 2>&1
-            | tee -a /home/circleci/deb-test-reports/adequate.txt
+            echo "Testing library package install results with adequate..."
+            | tee /home/circleci/deb-test-reports/adequate.txt; adequate
+            libgnome2-gconf-perl libgnome2-vte-perl libgtk2-ex-simple-list-perl
+            libgtk2-gladexml-perl libgtk2-unique-perl asbru-cm 2>&1 | tee -a
+            /home/circleci/deb-test-reports/adequate.txt
+      - run:
+          name: Print package installation status with dpkg
+          command: >
+            dpkg -s -D20000 libgnome2-gconf-perl libgnome2-vte-perl
+            libgtk2-ex-simple-list-perl libgtk2-gladexml-perl
+            libgtk2-unique-perl asbru-cm 2>&1 | tee
+            /home/circleci/deb-test-reports/dpkg-debug-status.txt
       - run:
           name: Test package installation results with piuparts
           command: >
             echo "Testing library package install results with piuparts...";
-            piuparts libgnome2-gconf-perl libgnome2-vte-perl libgtk2-ex-simple-list-perl libgtk2-gladexml-perl libgtk2-unique-perl asbru-cm 2>&1
-            | tee -a /home/circleci/deb-test-reports/piuparts.txt
+            sudo piuparts libgnome2-gconf-perl libgnome2-vte-perl
+            libgtk2-ex-simple-list-perl libgtk2-gladexml-perl
+            libgtk2-unique-perl asbru-cm 2>&1 | tee
+            /home/circleci/deb-test-reports/piuparts.txt
       - store_artifacts:
           path: /home/circleci/deb-test-reports
           destination: deb-package-tests
@@ -250,7 +316,7 @@ workflows:
           filters:
             branches:
               only: master
-      - build_asbru_rpm_and_save:
+      - build_asbru_rpm_test_and_save:
           requires:
             - scripts_test_and_store
           filters:

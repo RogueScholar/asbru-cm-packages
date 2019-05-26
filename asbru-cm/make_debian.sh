@@ -5,20 +5,22 @@
 set -o pipefail
 
 # ASCII art to brand the process
-echo -e "\033[32;40m\n
-\t      __       _            __                         \n
-\t     /_/      | |          /_/                         \n
-\t     / \   ___| |__  _ __ _   _                        \n
-\t    / _ \ / __| '_ \| '__| | | |                       \n
-\t   / ___ \\__ \ |_) | |  | |_| |  https://asbru-cm.net \n
-\t  /_/   \_\___/_.__/|_|   \__,_|                       \n
-\t         Connection Manager                   \033[39;49m"
+echo -e "\\033[32m
+\\t      __       _            __
+\\t     /_/      | |          /_/
+\\t     / \   ___| |__  _ __ _   _
+\\t    / _ \ / __| '_ \| '__| | | |
+\\t   / ___ \\__ \ |_) | |  | |_| |  \\033[31mhttps://asbru-cm.net/\\033[32m
+\\t  /_/   \_\___/_.__/|_|   \__,_|
+\\t         \\033[35mConnection Manager\\033[0m"
 
 # Information about the git repository and build directory saved to variables
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
 PACKAGE_DIR="${SCRIPT_DIR}/tmp"
 PACKAGE_NAME="asbru-cm"
-PACKAGE_ARCH="$(dpkg --print-architecture)"
+PACKAGE_ARCH="all"
+DEBIAN_VER="$(grep -P -m 1 -o "\\d*\\.\\d*-\\d*" debian/changelog)~local"
+BUILD_ARCH="$(dpkg --print-architecture)"
 
 # Let's check that we can bake a package before we go shopping for the ingredients
 if [ ! -x "$(command -v debuild)" ]; then
@@ -86,8 +88,8 @@ tar -xzf "${PACKAGE_DIR}"/${PACKAGE_NAME}_"${PACKAGE_VER}".orig.tar.gz -C "${PAC
 # Copy our Debian packaging files into the same directory as the unpacked source code
 cp -R debian/ "${PACKAGE_DIR}"/${PACKAGE_NAME}-"${PACKAGE_VER}"/
 
-# Make that source+packaging directory the new working directory
-cd "${PACKAGE_DIR}"/${PACKAGE_NAME}-"${PACKAGE_VER}"
+# Make that source+packaging directory the new working directory, error out if it's not accessible
+cd "${PACKAGE_DIR}"/${PACKAGE_NAME}-"${PACKAGE_VER}" || return 1
 
 # Append non-destructive "~local" suffix to version number to indicate a local build
 perl -i -pe "s/$(grep -P -m 1 -o "\\d*\\.\\d*-\\d*" debian/changelog)/$&~local/" debian/changelog
@@ -96,18 +98,18 @@ perl -i -pe "s/$(grep -P -m 1 -o "\\d*\\.\\d*-\\d*" debian/changelog)/$&~local/"
 sed -i "1s/unstable/$(lsb_release -cs)/" debian/changelog
 
 # Warn user of potentially lengthy process ahead
-echo -n "Building package ${PACKAGE_NAME}_${PACKAGE_VER}_${PACKAGE_ARCH}.deb, please be patient..."
+echo -n "Building package ${PACKAGE_NAME}_${DEBIAN_VER}_${PACKAGE_ARCH}.deb, please be patient..."
 
 # Save the final build status messages to functions
 good_news() {
-  echo -e "\t\033[32;40mOK:\033[39;49m I have good news!"
-  echo -e "\t\t"$PACKAGE_NAME"_"$PACKAGE_VER"_"$PACKAGE_ARCH".deb was successfully built in "$PACKAGE_DIR"!"
-  echo -e "\n\t\tYou can install it by typing: sudo apt install "$PACKAGE_DIR"/"$PACKAGE_NAME"_"$PACKAGE_VER"_"$PACKAGE_ARCH".deb"
+  echo -e "\\t\\033[32;40mOK:\\033[0m I have good news!"
+  echo -e "\\t\\t$PACKAGE_NAME_$DEBIAN_VER_$PACKAGE_ARCH.deb was successfully built in $PACKAGE_DIR!"
+  echo -e "\\n\\t\\tYou can install it by typing: sudo apt install $PACKAGE_DIR/$PACKAGE_NAME_$DEBIAN_VER_$PACKAGE_ARCH.deb"
 }
 bad_news() {
-  echo -e "\t\033[33;40mERROR:\033[39;49m I have bad news... :-("
-  echo -e "\t\tThe build process was unable to complete successfully."
-  echo -e "\t\tPlease check the "$PACKAGE_DIR"/"$PACKAGE_NAME"_"$PACKAGE_VER"_"$PACKAGE_ARCH".build file to get more information."
+  echo -e "\\t\\033[33;40mERROR:\\033[0m I have bad news... :-("
+  echo -e "\\t\\tThe build process was unable to complete successfully."
+  echo -e "\\t\\tPlease check the $PACKAGE_DIR/$PACKAGE_NAME_$DEBIAN_VER_$BUILD_ARCH.build file to get more information."
 }
 
 # Call debuild to oversee the build process and produce an output string for the user based on its exit code
