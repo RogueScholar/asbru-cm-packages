@@ -1,21 +1,18 @@
 #!/usr/bin/env bash
 
-# Exit script if an uninitialized variable is called
-set -o nounset
-
-# Exit script if a statement produces a non-true return value
-set -o errexit
-
 # If there is a failure in a pipeline, return the error status of the
 # first failed process rather than the last command in the sequence
 set -o pipefail
 
-# Some ANSI escape color goodness
-G='\033[32;40m'
-B='\033[39;49m'
-Y='\033[33;40m'
-OK="${G}OK:${B}"
-ERROR="${Y}ERROR:${B}"
+# ASCII art to brand the process
+echo -e "\033[32;40m\n
+\t      __       _            __                         \n
+\t     /_/      | |          /_/                         \n
+\t     / \   ___| |__  _ __ _   _                        \n
+\t    / _ \ / __| '_ \| '__| | | |                       \n
+\t   / ___ \\__ \ |_) | |  | |_| |  https://asbru-cm.net \n
+\t  /_/   \_\___/_.__/|_|   \__,_|                       \n
+\t         Connection Manager                   \033[39;49m"
 
 # Information about the git repository and build directory saved to variables
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
@@ -93,7 +90,7 @@ cp -R debian/ "${PACKAGE_DIR}"/${PACKAGE_NAME}-"${PACKAGE_VER}"/
 cd "${PACKAGE_DIR}"/${PACKAGE_NAME}-"${PACKAGE_VER}"
 
 # Append non-destructive "~local" suffix to version number to indicate a local build
-perl -i -pe "s/$(grep -P -m 1 -o "\d*\.\d*-\d*" debian/changelog)/$&~local/" debian/changelog
+perl -i -pe "s/$(grep -P -m 1 -o "\\d*\\.\\d*-\\d*" debian/changelog)/$&~local/" debian/changelog
 
 # Replace the generic distribution string "unstable" with the distribution code-name of the build system
 sed -i "1s/unstable/$(lsb_release -cs)/" debian/changelog
@@ -101,8 +98,33 @@ sed -i "1s/unstable/$(lsb_release -cs)/" debian/changelog
 # Warn user of potentially lengthy process ahead
 echo -n "Building package ${PACKAGE_NAME}_${PACKAGE_VER}_${PACKAGE_ARCH}.deb, please be patient..."
 
+# Save the final build status messages to functions
+good_news() {
+  echo -e "\t\033[32;40mOK:\033[39;49m I have good news!"
+  echo -e "\t\t"$PACKAGE_NAME"_"$PACKAGE_VER"_"$PACKAGE_ARCH".deb was successfully built in "$PACKAGE_DIR"!"
+  echo -e "\n\t\tYou can install it by typing: sudo apt install "$PACKAGE_DIR"/"$PACKAGE_NAME"_"$PACKAGE_VER"_"$PACKAGE_ARCH".deb"
+}
+bad_news() {
+  echo -e "\t\033[33;40mERROR:\033[39;49m I have bad news... :-("
+  echo -e "\t\tThe build process was unable to complete successfully."
+  echo -e "\t\tPlease check the "$PACKAGE_DIR"/"$PACKAGE_NAME"_"$PACKAGE_VER"_"$PACKAGE_ARCH".build file to get more information."
+}
+
 # Call debuild to oversee the build process and produce an output string for the user based on its exit code
-debuild -b -us -uc && echo "${OK} I have good news! ${PACKAGE_NAME}_${PACKAGE_VER}_${PACKAGE_ARCH}.deb was \
-successfully built in ${PACKAGE_DIR} :)" || echo "${ERROR} I have bad news; the build process was unable to \
-complete successfully. Please check the ${PACKAGE_NAME}_${PACKAGE_VER}_${PACKAGE_ARCH}.build file in \
-${PACKAGE_DIR} to get more information."
+if [ -n "$CIRCLECI" ]; then
+  if debuild -D -F -sa -us -uc; then
+    good_news
+    exit 0
+  else
+    bad_news
+    exit 1
+  fi
+else
+  if debuild -b -us -uc; then
+    good_news
+    exit 0
+  else
+    bad_news
+    exit 1
+  fi
+fi

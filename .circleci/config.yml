@@ -9,6 +9,7 @@ executors:
     environment:
       DEBUILD_DPKG_BUILDPACKAGE_OPTS: "-D -F -sa"
       DEBUILD_LINTIAN_OPTS: "-E -I -i --pedantic"
+      DH_VERBOSE: "1"
 jobs:
   scripts_test_and_store:
     executor: ubuntu-disco
@@ -198,12 +199,11 @@ jobs:
       - run:
           name: Update apt and install testing packages
           command: >
-            sudo apt update && sudo apt full-upgrade -y && sudo apt install -y abi-compliance-checker add-apt-key adequate apt-transport-https
-            apt-utils autopkgtest curl dbus-x11 debhelper debtags dpkg-dev dselect fakeroot ftp gconf-service gnupg gtk2-engines-pixbuf gzip
-            libcairo-perl libcanberra-gtk-module libcrypt-blowfish-perl libcrypt-cbc-perl libcrypt-rijndael-perl libexpect-perl libgconf-2-4
-            libglade2-0 libglib-perl libgnome2-gconf-perl libgtk2.0-0 libgtk2-perl libnet-arp-perl libnet-proxy-perl libossp-uuid-perl
-            libpango-perl libsocket6-perl libunique-1.0-0 libvte9 libyaml-perl lintian pbuilder piuparts schroot software-properties-common
-            telnet
+            sudo apt update && sudo apt full-upgrade -y && sudo apt install -y add-apt-key adequate apt-transport-https apt-utils autopkgtest
+            dbus-x11 debhelper debtags fakeroot ftp gconf-service gtk2-engines-pixbuf libcairo-perl libcanberra-gtk-module libcrypt-blowfish-perl
+            libcrypt-cbc-perl libcrypt-rijndael-perl libexpect-perl libgconf-2-4 libglade2-0 libglib-perl libgtk2.0-0 libgtk2-perl libnet-arp-perl
+            libnet-proxy-perl libossp-uuid-perl libpango-perl libsocket6-perl libunique-1.0-0 libvte9 libyaml-perl lintian pbuilder piuparts schroot
+            software-properties-common telnet
       - attach_workspace:
           at: deb_packages
       - run:
@@ -217,10 +217,16 @@ jobs:
             curl -L https://packagecloud.io/asbru-cm/asbru-cm/gpgkey | sudo apt-key add -
             sudo apt-add-repository -ysu 'deb https://packagecloud.io/asbru-cm/asbru-cm/ubuntu/ disco main'
       - run:
-          name: Test package installation results
+          name: Test package installation results with adequate
           command: >
             mkdir -p /home/circleci/deb-test-reports;
-            echo "Testing library package install results...";
+            echo "Testing library package install results with adequate...";
+            adequate libgnome2-gconf-perl libgnome2-vte-perl libgtk2-ex-simple-list-perl libgtk2-gladexml-perl libgtk2-unique-perl asbru-cm 2>&1
+            | tee -a /home/circleci/deb-test-reports/adequate.txt
+      - run:
+          name: Test package installation results with piuparts
+          command: >
+            echo "Testing library package install results with piuparts...";
             piuparts libgnome2-gconf-perl libgnome2-vte-perl libgtk2-ex-simple-list-perl libgtk2-gladexml-perl libgtk2-unique-perl asbru-cm 2>&1
             | tee -a /home/circleci/deb-test-reports/piuparts.txt
       - store_artifacts:
@@ -245,6 +251,8 @@ workflows:
             branches:
               only: master
       - build_asbru_rpm_and_save:
+          requires:
+            - scripts_test_and_store
           filters:
             branches:
               only: master
