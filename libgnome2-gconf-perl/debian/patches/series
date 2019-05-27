@@ -1,3 +1,4 @@
-fix-manpage-error
-fix-useless-whatis-entries
-disable-orbit
+disable-orbit.patch
+fix-bad-whatis-entry.patch
+fix-manpage-error.patch
+fix-useless-whatis-entries.patch

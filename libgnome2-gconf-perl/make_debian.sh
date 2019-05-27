@@ -14,13 +14,13 @@ echo -e "\033[32m
 \t  /_/   \_\___/_.__/|_|   \__,_|
 \t         \033[35mConnection Manager\033[0m"
 
-# Information about the git repository, build environment and Perl module source
+# Information about the file paths, build environment and Perl module source
 PACKAGE_NAME="libgnome2-gconf-perl"
 PACKAGE_VER="1.044"
 DEBIAN_VER="$(grep -P -m 1 -o "\d*\.\d*-\d*" debian/changelog)~asbru1"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
 PACKAGE_DIR="${SCRIPT_DIR}/tmp"
-ORIG_PACKAGE_NAME="Gnome2-GConf-1.044"
+ORIG_PACKAGE_NAME="Gnome2-GConf-${PACKAGE_VER}"
 PACKAGE_SRC="https://cpan.metacpan.org/authors/id/T/TS/TSCH/${ORIG_PACKAGE_NAME}.tar.gz"
 PACKAGE_ARCH="$(dpkg --print-architecture)"
 
@@ -54,7 +54,7 @@ sed -i "1s/unstable/$(lsb_release -cs)/" debian/changelog
 # Warn user of potentially lengthy process ahead
 echo -n "Building package ${PACKAGE_NAME}_${DEBIAN_VER}_${PACKAGE_ARCH}.deb, please be patient..."
 
-# Save the final build status messages to functions
+# Save the build's final status messages to functions (cleans up the main function logic underneath)
 good_news() {
   echo -e "\t\033[32;40mOK:\033[0m I have good news!"
   echo -e "\t\t"$PACKAGE_NAME"_"$DEBIAN_VER"_"$PACKAGE_ARCH".deb was successfully built in "$PACKAGE_DIR"!"
@@ -67,8 +67,9 @@ bad_news() {
 }
 
 # Call debuild to oversee the build process and produce an output string for the user based on its exit code
+# A separate invocation style is triggered if the script is run by a CircleCI executor for development testing
 if [ -n "$CIRCLECI" ]; then
-  if debuild -D -F -sa -us -uc; then
+  if debuild -D -F -sa -us -uc --lintian-opts -EIi --pedantic; then
     good_news
     exit 0
   else

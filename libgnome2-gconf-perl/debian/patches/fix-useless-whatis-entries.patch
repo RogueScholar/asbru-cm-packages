@@ -2,6 +2,7 @@ Description: enable creation of meaningful whatis entries
  http://lintian.debian.org/tags/manpage-has-useless-whatis-entry.html
 Author: Ryan Niebur <ryan@debian.org>
 Forwarded: https://rt.cpan.org/Public/Bug/Display.html?id=95014
+Last-Update: 2019-05-27
 
 --- a/xs/GConf2.xs
 +++ b/xs/GConf2.xs
@@ -10,16 +11,17 @@ Forwarded: https://rt.cpan.org/Public/Bug/Display.html?id=95014
  MODULE = Gnome2::GConf	PACKAGE = Gnome2::GConf PREFIX = gconf_
  
 -=for object Gnome2::GConf::version
-+=for object Gnome2::GConf::version the version that of libgconf that Gnome2::GConf was built against
++=for object Gnome2::GConf::version the version of libgconf that this module was built using
  
  =cut
  
-@@ -95,7 +95,7 @@
+@@ -95,7 +95,8 @@
  
  ## gconf.h
  
 -=for object Gnome2::GConf::main
-+=for object Gnome2::GConf::main utility functions for Gnome2::GConf
++=for object Gnome2::GConf::main module utility functions
++
  =cut
  
  =for apidoc
@@ -29,7 +31,7 @@ Forwarded: https://rt.cpan.org/Public/Bug/Display.html?id=95014
  	gperl_signal_set_marshaller_for (GCONF_TYPE_CLIENT, "error",
  					 gconfperl_client_error_marshal);
  
-+=for object Gnome2::GConf::Client client module for GConf
++=for object Gnome2::GConf::Client client module for gconf
 +
 +=cut
 +

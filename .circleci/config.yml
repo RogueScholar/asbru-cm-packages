@@ -48,7 +48,6 @@ jobs:
           destination: script-tests
   build_libs_and_save:
     executor: ubuntu-disco
-    parallelism: 4
     environment:
       DEBUILD_LINTIAN_OPTS: "-E -I -i --pedantic"
       DH_VERBOSE: "1"

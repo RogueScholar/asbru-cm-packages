@@ -6,7 +6,6 @@ libgnome2-gconf-perl (1.044-7) unstable; urgency=low
   * Declare compliance with Debian Policy 4.3.0
   * Add Vcs-Browser and Vcs-Git links to official GNOME Gitlab instance
   * Add Testsuite autopkgtest-pkg-perl
-  * Set Rules-Requires-Root to no
 
  -- Peter J. Mello <admin@petermello.net>  Tue, 21 May 2019 15:33:03 -0700
 
