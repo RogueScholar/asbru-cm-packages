@@ -17,7 +17,7 @@ echo -e "\\e[36m
 # Find the absolute path to the script and make its folder the working directory,
 # in case invoked from elsewhere
 typeset -r SCRIPT_DIR="$(dirname "$(realpath -q "${BASH_SOURCE[0]}")")"
-cd ${SCRIPT_DIR} || exit 1
+cd "${SCRIPT_DIR}" || exit 1
 
 # Information about the git repository, build environment and Perl module source saved to variables
 PACKAGE_NAME="libgtk2-unique-perl"

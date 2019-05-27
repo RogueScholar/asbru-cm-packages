@@ -34,6 +34,7 @@ jobs:
           name: Test shell scripts and record file stats
           command: |
             set +e; set +o pipefail; mkdir -p /home/circleci/script-test-reports
+            echo "lines words chars filename" >/home/circleci/script-test-reports/script-file-stats.txt
             echo "Calculating script file stats..."
             find /home/circleci/packages -type f -name '*.sh' | xargs wc -lmw 2>&1 | tee -a /home/circleci/script-test-reports/script-file-stats.txt
             echo "Running shellcheck tests..."
@@ -219,7 +220,7 @@ jobs:
           name: Build asbru-cm RPM package
           command: ./asbru-cm/make_rpm.sh
       - store_artifacts:
-          path: /home/circleci/packages/asbru-cm/rpm/RPMS/noarch
+          path: /home/circleci/packages/asbru-cm/tmp/RPMS/noarch
           destination: rpm-package
       - run:
           name: Test package installation results with dnf

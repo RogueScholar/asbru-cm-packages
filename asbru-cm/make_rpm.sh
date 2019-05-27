@@ -17,7 +17,7 @@ echo -e "\\033[32m
 # Find the absolute path to the script and make its folder the working directory,
 # in case invoked from elsewhere
 typeset -r SCRIPT_DIR="$(dirname "$(realpath -q "${BASH_SOURCE[0]}")")"
-cd ${SCRIPT_DIR} || exit 1
+cd "${SCRIPT_DIR}" || exit 1
 
 # Some working variables
 G="\\033[32m"
@@ -74,20 +74,22 @@ if [[ -z "$RELEASE" ]]; then
 fi
 
 PACKAGE_DIR="${SCRIPT_DIR}/tmp"
+PACKAGE_NAME="asbru-cm"
 RELEASE_RPM=${RELEASE,,}
 RPM_VERSION=${RELEASE_RPM/-/"~"}
 typeset -i RELEASE_COUNT
 RELEASE_COUNT=1
 
 # Makes sure working directories exist
-mkdir -p ${PACKAGE_DIR}/{SOURCES,tmp}
+rm -rf "${PACKAGE_DIR}"
+mkdir -p "${PACKAGE_DIR}"/{BUILD,RPMS,SOURCES,SPECS,SRPMS}
+
+cp ${SCRIPT_DIR}/rpm/asbru-cm.spec ${PACKAGE_DIR}/SPECS
 
 # Look for a "free" release count
-while [ -f "${PACKAGE_DIR}"/RPMS/noarch/asbru-cm-"${RPM_VERSION}"-"${RELEASE_COUNT}".noarch.rpm ]; do
+while [ -f "${PACKAGE_DIR}"/RPMS/noarch/asbru-cm-"${RPM_VERSION}"-"${RELEASE_COUNT}".fc30.noarch.rpm ]; do
   RELEASE_COUNT+=1
 done
-
-echo -n "Building package release ${RPM_VERSION}, be patient... "
 
 if [ ! -f "${PACKAGE_DIR}"/SOURCES/"${RPM_VERSION}".tar.gz ]; then
   wget -q https://github.com/asbru-cm/asbru-cm/archive/"${RELEASE}".tar.gz -O "${PACKAGE_DIR}"/SOURCES/"${RPM_VERSION}".tar.gz
@@ -99,14 +101,14 @@ if [ ! -f "${PACKAGE_DIR}/SOURCES/${RPM_VERSION}.tar.gz" ]; then
   exit 1
 fi
 
-cd ${PACKAGE_DIR} || exit 1
+cd "${PACKAGE_DIR}" || exit 1
 
-if rpmbuild -bb --define "_topdir $(pwd)" --define "_version ${RPM_VERSION}" --define "_release ${RELEASE_COUNT}" --define "_github_version ${RELEASE}" --define "_buildshell /bin/bash" ./SPECS/asbru.spec >> ./tmp/buildlog 2>&1; then
-  echo -e " $OK !"
-  echo "This look like good news, package succesfully build in ${PACKAGE_DIR}/RPMS :)"
+if rpmbuild -bb --define "_topdir ${PACKAGE_DIR}" --define "_version ${RPM_VERSION}" --define "_release ${RELEASE_COUNT}" --define "_github_version ${RELEASE}" --define "_buildshell /bin/bash" ${PACKAGE_DIR}/SPECS/asbru-cm.spec >> ${PACKAGE_DIR}/RPMS/noarch/${PACKAGE_NAME}-${RELEASE}-${RELEASE_COUNT}.fc30.noarch.buildlog 2>&1; then
+  echo -e "\\t\\e[32;40mSUCCESS:\\e[0m I have good news!"
+  echo -e "\\t\\t${PACKAGE_NAME}-${RELEASE}-${RELEASE_COUNT}.fc30.noarch.rpm was successfully built in ${PACKAGE_DIR}/RPMS!"
 else
   echo -e "${ERROR}"
-  echo "Bad news, something did not happen as expected, check ${PACKAGE_DIR}/tmp/buildlog to get more information."
+  echo "Bad news, something did not happen as expected, check ${PACKAGE_DIR}/RPMS/noarch/${PACKAGE_NAME}-${RELEASE}-${RELEASE_COUNT}.fc30.noarch.buildlog to get more information."
 fi
 
 echo "All done."

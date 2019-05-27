@@ -17,7 +17,7 @@ echo -e "\\e[36m
 # Find the absolute path to the script and make its folder the working directory,
 # in case invoked from elsewhere
 typeset -r SCRIPT_DIR="$(dirname "$(realpath -q "${BASH_SOURCE[0]}")")"
-cd ${SCRIPT_DIR} || exit 1
+cd "${SCRIPT_DIR}" || exit 1
 
 # Information about the git repository and build directory saved to variables
 PACKAGE_DIR="${SCRIPT_DIR}/tmp"

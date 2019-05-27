@@ -39,20 +39,14 @@ GitHub.sublime-settings
 secring.*
 
 # Project specific files
-asbru-cm/rpm/BUILD
-asbru-cm/rpm/BUILDROOT
-asbru-cm/rpm/RPMS
-asbru-cm/rpm/SOURCES
-asbru-cm/rpm/SRPMS
-asbru-cm/rpm/tmp
 asbru-cm/tmp
-*/debian/.debhelper
-*/debian/*.debhelper.log
-*/debian/debhelper-build-stamp
-*/debian/files
-*/debian/*.substvars
 libgnome2-gconf-perl/tmp
 libgnome2-vte-perl/tmp
 libgtk2-ex-simple-list-perl/tmp
 libgtk2-gladexml-perl/tmp
 libgtk2-unique-perl/tmp
+*/debian/.debhelper
+*/debian/*.debhelper.log
+*/debian/debhelper-build-stamp
+*/debian/files
+*/debian/*.substvars
