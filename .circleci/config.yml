@@ -17,26 +17,23 @@ jobs:
       - checkout
       - run:
           name: Install go and shellcheck
-          command: |
-            sudo apt update
-            sudo apt full-upgrade -y
-            sudo apt install -y add-apt-key apt-transport-https apt-utils \
-            golang-1.11 golang-1.11-race-detector-runtime shellcheck \
-            software-properties-common
+          command: >
+            sudo mv -f ./.circleci/disco-sources.list /etc/apt/sources.list &&
+            sudo apt update && sudo apt -y full-upgrade && sudo apt -y install
+            gnulib golang-1.11 golang-1.11-race-detector-runtime shellcheck
       - run:
           name: Install shfmt v3
           command: |
-            mkdir -p $GOBIN
-            export PATH="$PATH:$GOROOT/bin:$GOBIN"
+            mkdir -p /home/circleci/go/bin
+            export PATH="$PATH:/usr/lib/go-1.11/bin:/home/circleci/go/bin"
             cd $(mktemp -d); go mod init tmp; go get mvdan.cc/sh/v3/cmd/shfmt
             go build mvdan.cc/sh/v3/cmd/shfmt
-            command -v shfmt || sudo cp ./shfmt /usr/local/bin
+            go install mvdan.cc/sh/v3/cmd/shfmt
+            sudo cp -f ./shfmt /usr/local/bin
       - run:
           name: Test shell scripts and record file stats
           command: |
-            set +e
-            set +o pipefail
-            mkdir -p /home/circleci/script-test-reports
+            set +e; set +o pipefail; mkdir -p /home/circleci/script-test-reports
             echo "Calculating script file stats..."
             find /home/circleci/packages -type f -name '*.sh' | xargs wc -lmw 2>&1 | tee -a /home/circleci/script-test-reports/script-file-stats.txt
             echo "Running shellcheck tests..."
@@ -49,25 +46,28 @@ jobs:
   build_libs_and_save:
     executor: ubuntu-disco
     environment:
-      DEBUILD_LINTIAN_OPTS: "-E -I -i --pedantic"
       DH_VERBOSE: "1"
     steps:
       - checkout
       - run:
           name: Update apt and install build dependencies
           command: >
-            sudo apt update && sudo apt full-upgrade -y && sudo apt install -y
-            apt-transport-https apt-utils autopkgtest binutils-multiarch
-            build-essential debhelper devscripts dh-acc dh-make groff
-            libgconf2-dev libglade2-dev libglib-perl libgtk2-perl libvte-dev
-            libgtk2-perl libextutils-pkgconfig-perl libextutils-depends-perl
-            libunique-dev software-properties-common quilt wget xauth
-            xfonts-base xvfb
+            sudo apt -y full-upgrade && sudo apt -y install add-apt-key dh-acc
+            autopkgtest binutils-multiarch devscripts dh-buildinfo dh-exec
+            dh-make dh-make-perl dh-metainit dh-migrations dh-python dh-runit
+            dh-translations libgconf2-dev gconf-defaults-service pristine-tar
+            libdbus-glib-1-dev libextutils-depends-perl pkg-perl-autopkgtest
+            libextutils-pkgconfig-perl libglade2-dev libgtk2-perl libunique-dev
+            libvte-dev quilt software-properties-common xz-utils
+      - run:
+          name: Add ppa:roguescholar/ppa to apt sources and upgrade
+          command: >
+            sudo mv -f ./.circleci/disco-sources.list /etc/apt/sources.list &&
+            sudo add-apt-repository -usy ppa:roguescholar/ppa && sudo apt -y
+            full-upgrade
       - run:
           name: Build libgnome2-gconf-perl
-          command: |
-            cd /home/circleci/packages/libgnome2-gconf-perl
-            bash /home/circleci/packages/libgnome2-gconf-perl/make_debian.sh
+          command: ./libgnome2-gconf-perl/make_debian.sh
       - persist_to_workspace:
           root: /home/circleci/packages/libgnome2-gconf-perl/tmp
           paths: libgnome2-gconf-perl_*.deb
@@ -85,9 +85,7 @@ jobs:
           path: /home/circleci/packages/libgnome2-gconf-perl/tmp/libgnome2-gconf-perl_1.044-7~asbru1.debian.tar.xz
       - run:
           name: Build libgnome2-vte-perl
-          command: |
-            cd /home/circleci/packages/libgnome2-vte-perl
-            bash /home/circleci/packages/libgnome2-vte-perl/make_debian.sh
+          command: ./libgnome2-vte-perl/make_debian.sh
       - persist_to_workspace:
           root: /home/circleci/packages/libgnome2-vte-perl/tmp
           paths: libgnome2-vte-perl_*.deb
@@ -105,9 +103,7 @@ jobs:
           path: /home/circleci/packages/libgnome2-vte-perl/tmp/libgnome2-vte-perl_0.11-2~asbru1.debian.tar.xz
       - run:
           name: Build libgtk2-ex-simple-list-perl
-          command: |
-            cd /home/circleci/packages/libgtk2-ex-simple-list-perl
-            bash /home/circleci/packages/libgtk2-ex-simple-list-perl/make_debian.sh
+          command: ./libgtk2-ex-simple-list-perl/make_debian.sh
       - persist_to_workspace:
           root: /home/circleci/packages/libgtk2-ex-simple-list-perl/tmp
           paths: libgtk2-ex-simple-list-perl_*.deb
@@ -123,9 +119,7 @@ jobs:
           path: /home/circleci/packages/libgtk2-ex-simple-list-perl/tmp/libgtk2-ex-simple-list-perl_0.50-3~asbru1.debian.tar.xz
       - run:
           name: Build libgtk2-gladexml-perl
-          command: |
-            cd /home/circleci/packages/libgtk2-gladexml-perl
-            bash /home/circleci/packages/libgtk2-gladexml-perl/make_debian.sh
+          command: ./libgtk2-gladexml-perl/make_debian.sh
       - persist_to_workspace:
           root: /home/circleci/packages/libgtk2-gladexml-perl/tmp
           paths: libgtk2-gladexml-perl_*.deb
@@ -143,9 +137,7 @@ jobs:
           path: /home/circleci/packages/libgtk2-gladexml-perl/tmp/libgtk2-gladexml-perl_1.007-2~asbru1.debian.tar.xz
       - run:
           name: Build libgtk2-unique-perl
-          command: |
-            cd /home/circleci/packages/libgtk2-unique-perl
-            bash /home/circleci/packages/libgtk2-unique-perl/make_debian.sh
+          command: ./libgtk2-unique-perl/make_debian.sh
       - persist_to_workspace:
           root: /home/circleci/packages/libgtk2-unique-perl/tmp
           paths: libgtk2-unique-perl_*.deb
@@ -164,38 +156,39 @@ jobs:
   build_asbru_deb_and_save:
     executor: ubuntu-disco
     environment:
-      DEBUILD_LINTIAN_OPTS: "-E -I -i --pedantic"
       DH_VERBOSE: "1"
     steps:
       - checkout
       - run:
           name: Update apt and install build dependencies
           command: >
-            sudo apt update && sudo apt full-upgrade -y && sudo apt install -y
-            apt-transport-https apt-utils autopkgtest bash binutils-multiarch
-            build-essential curl dbus-user-session debhelper devscripts dh-acc
-            dh-make dh-make-perl dpkg ftp gconf-service gconf-service-backend
-            gconf2-common gnupg groff gtk2-engines-pixbuf libargon2-1
-            libcairo-perl libcanberra-gtk-module libcap2 libcrypt-blowfish-perl
+            sudo apt update && sudo apt -y full-upgrade && sudo apt -y install
+            apt-transport-https autopkgtest binutils-multiarch build-essential
+            dbus-user-session debhelper devscripts dh-acc dh-make dh-make-perl
+            ftp gconf-service gconf-service-backend gconf2-common
+            gtk2-engines-pixbuf libargon2-1 libcairo-perl
+            libcanberra-gtk-module libcap2 libcrypt-blowfish-perl
             libcrypt-cbc-perl libcrypt-rijndael-perl libcryptsetup12
             libdbus-glib-1-2 libdevmapper1.02.1 libexpect-perl libgconf-2-4
             libglade2-0 libglib-perl libgtk2-perl libip4tc0 libjson-c3
             libnet-arp-perl libnet-proxy-perl libnss-systemd libossp-uuid-perl
             libpam-systemd libpango-perl libsocket6-perl libunique-1.0-0
-            libvte9 libxml-parser-perl libyaml-perl openssh-client perl quilt
+            libvte9 libxml-parser-perl libyaml-perl openssh-client quilt
             software-properties-common systemd systemd-sysv telnet wget
+      - run:
+          name: Add ppa:roguescholar/ppa to apt sources and upgrade
+          command: >
+            sudo mv -f ./.circleci/disco-sources.list /etc/apt/sources.list &&
+            sudo add-apt-repository -usy ppa:roguescholar/ppa && sudo apt -y
+            full-upgrade
       - attach_workspace:
           at: /home/circleci/packages
       - run:
           name: Install library dependencies
-          command: >
-            find /home/circleci -type f -name 'lib*.deb'
-            | sudo xargs dpkg -i
+          command: find /home/circleci -type f -name 'lib*.deb' | sudo xargs dpkg -i
       - run:
           name: Build asbru-cm Debian package
-          command: |
-            cd /home/circleci/packages/asbru-cm
-            bash /home/circleci/packages/asbru-cm/make_debian.sh
+          command: ./asbru-cm/make_debian.sh
       - persist_to_workspace:
           root: /home/circleci/packages/asbru-cm/tmp
           paths: asbru-cm_*.deb
@@ -224,7 +217,7 @@ jobs:
       - checkout
       - run:
           name: Build asbru-cm RPM package
-          command: cd /home/circleci/packages/asbru-cm && ./make_rpm.sh
+          command: ./asbru-cm/make_rpm.sh
       - store_artifacts:
           path: /home/circleci/packages/asbru-cm/rpm/RPMS/noarch
           destination: rpm-package
@@ -257,6 +250,12 @@ jobs:
             libgtk2-perl libnet-arp-perl libnet-proxy-perl libossp-uuid-perl
             libpango-perl libsocket6-perl libunique-1.0-0 libvte9 libyaml-perl
             lintian pbuilder piuparts schroot software-properties-common telnet
+      - run:
+          name: Add ppa:roguescholar/ppa to apt sources and upgrade
+          command: >
+            sudo mv -f ./.circleci/disco-sources.list /etc/apt/sources.list &&
+            sudo add-apt-repository -usy ppa:roguescholar/ppa && sudo apt -y
+            full-upgrade
       - attach_workspace:
           at: deb_packages
       - run:
@@ -299,7 +298,7 @@ jobs:
           destination: deb-package-tests
 workflows:
   version: 2
-  asbru-cm-test-build:
+  asbru-cm-build-packages-and-test:
     jobs:
       - scripts_test_and_store:
           filters:

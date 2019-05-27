@@ -1,6 +1,6 @@
 libgnome2-gconf-perl (1.044-7) unstable; urgency=low
 
-  * d/control: Increase dh level to 11 via debhelper-compat string
+  * d/control: Increase dh level to 12 via debhelper-compat string
   * Change Maintainer to Asbru Project Team, Uploader to Peter J. Mello
   * Insert proper Build-Depends package versions
   * Declare compliance with Debian Policy 4.3.0
@@ -87,7 +87,7 @@ libgnome2-gconf-perl (1.044-3) unstable; urgency=low
  -- Ryan Niebur <ryanryan52@gmail.com>  Wed, 01 Apr 2009 16:40:51 -0700
 
 libgnome2-gconf-perl (1.044-2) unstable; urgency=low
-  
+
   * Take over for the Debian Perl Group on maintainer's request
     (http://lists.debian.org/debian-perl/2008/12/msg00163.html)
   * Add me to uploaders, remove old maintainer(s)
@@ -98,7 +98,7 @@ libgnome2-gconf-perl (1.044-2) unstable; urgency=low
     - use quilt
     - add README.source
   * machine readable copyright format
-  * debian/control: wrap long lines; 
+  * debian/control: wrap long lines;
     Mention module Name on extended desc.
 
  -- Ryan Niebur <ryanryan52@gmail.com>  Tue, 10 Feb 2009 21:31:07 -0800
@@ -137,7 +137,7 @@ libgnome2-gconf-perl (1.020-1) unstable; urgency=low
 
 libgnome2-gconf-perl (1.000-4) unstable; urgency=low
 
-  * Rebuild against new GNOME 2.6 in unstable. 
+  * Rebuild against new GNOME 2.6 in unstable.
 
  -- Marc 'HE' Brockschmidt <he@debian.org>  Thu,  3 Jun 2004 13:47:00 +0200
 

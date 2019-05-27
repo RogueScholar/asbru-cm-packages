@@ -1,18 +1,28 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-#     __       _            __  
-#    /_/      | |          /_/    
-#    / \   ___| |__  _ __ _   _   
-#   / _ \ / __| '_ \| '__| | | |  
-#  / ___ \\__ \ |_) | |  | |_| |  https://asbru-cm.net
-# /_/   \_\___/_.__/|_|   \__,_|  
-#        Connection Manager       
-#
+# If there is a failure in a pipeline, return the error status of the
+# first failed process rather than the last command in the sequence
+set -o pipefail
+
+# ASCII art to brand the process
+echo -e "\\033[32m
+\\t      __       _            __
+\\t     /_/      | |          /_/
+\\t     / \   ___| |__  _ __ _   _
+\\t    / _ \ / __| '_ \| '__| | | |
+\\t   / ___ \\__ \ |_) | |  | |_| |  \\033[31mhttps://asbru-cm.net/\\033[32m
+\\t  /_/   \_\___/_.__/|_|   \__,_|
+\\t         \\033[35mConnection Manager\\033[0m"
+
+# Find the absolute path to the script and make its folder the working directory,
+# in case invoked from elsewhere
+typeset -r SCRIPT_DIR="$(dirname "$(realpath -q "${BASH_SOURCE[0]}")")"
+cd ${SCRIPT_DIR} || exit 1
 
 # Some working variables
-G="\033[32m"
-B="\033[39m"
-Y="\033[33m"
+G="\\033[32m"
+B="\\033[39m"
+Y="\\033[33m"
 OK="${G}OK${B}"
 ERROR="${Y}ERROR${B}"
 
@@ -35,22 +45,22 @@ else
 fi
 
 if [[ -z "$1" ]]; then
-  if [ ! "$JQ" == "" ] && [ ! "$CURL" == "" ] ; then
+  if [ ! "$JQ" == "" ] && [ ! "$CURL" == "" ]; then
     # Try to guess the latest release
     echo -n "No release given, querying GitHub ..."
     all_releases=$(${CURL} -s https://api.github.com/repos/asbru-cm/asbru-cm/tags)
-    if [ $? -eq 0 ] ; then
-      echo -e " $OK !"
+    if [ -n "${all_releases}" ]; then
+      echo -e " ${OK} !"
       echo -n -e "Extracting latest version ..."
-      RELEASE=$(echo $all_releases | ${JQ} -r '.[0] | .name')
-      echo -e " found [$RELEASE], $OK !"
+      RELEASE=$(echo "${all_releases}" | ${JQ} -r '.[0] | .name')
+      echo -e " found [${RELEASE}], ${OK} !"
     fi
   fi
 else
   RELEASE=$1
 fi
 
-if [[ -z "$RELEASE" ]] ; then
+if [[ -z "$RELEASE" ]]; then
   echo -e "${ERROR}"
   echo "Either we could not fetch the latest release or no releasename is given." 1>&2
   echo "Please provide a release name matching GitHub. It is case sensitive like 5.0.0-RC1" 1>&2
@@ -63,35 +73,35 @@ if [[ -z "$RELEASE" ]] ; then
   exit 1
 fi
 
-PACKAGE_DIR=./rpm
+PACKAGE_DIR="${SCRIPT_DIR}/tmp"
 RELEASE_RPM=${RELEASE,,}
 RPM_VERSION=${RELEASE_RPM/-/"~"}
+typeset -i RELEASE_COUNT
 RELEASE_COUNT=1
 
 # Makes sure working directories exist
 mkdir -p ${PACKAGE_DIR}/{SOURCES,tmp}
 
 # Look for a "free" release count
-while [ -f ${PACKAGE_DIR}/RPMS/noarch/asbru-cm-${RPM_VERSION}-${RELEASE_COUNT}.noarch.rpm ] ; do
-  RELEASE_COUNT=$((${RELEASE_COUNT} + 1))
+while [ -f "${PACKAGE_DIR}"/RPMS/noarch/asbru-cm-"${RPM_VERSION}"-"${RELEASE_COUNT}".noarch.rpm ]; do
+  RELEASE_COUNT+=1
 done
 
 echo -n "Building package release ${RPM_VERSION}, be patient... "
 
-if [ ! -f ${PACKAGE_DIR}/SOURCES/${RPM_VERSION}.tar.gz ] ; then
-  wget -q https://github.com/asbru-cm/asbru-cm/archive/${RELEASE}.tar.gz -O ${PACKAGE_DIR}/SOURCES/${RPM_VERSION}.tar.gz
+if [ ! -f "${PACKAGE_DIR}"/SOURCES/"${RPM_VERSION}".tar.gz ]; then
+  wget -q https://github.com/asbru-cm/asbru-cm/archive/"${RELEASE}".tar.gz -O "${PACKAGE_DIR}"/SOURCES/"${RPM_VERSION}".tar.gz
 fi
 
-if [ $? -ne 0 ]; then
+if [ ! -f "${PACKAGE_DIR}/SOURCES/${RPM_VERSION}.tar.gz" ]; then
   echo "An error occured while downloading release ${RELEASE}"
   echo "Please check if that release actually exists and the server isn't down"
   exit 1
 fi
 
-cd ${PACKAGE_DIR}
-rpmbuild -bb --define "_topdir $(pwd)" --define "_version ${RPM_VERSION}" --define "_release ${RELEASE_COUNT}" --define "_github_version ${RELEASE}" --define "_buildshell /bin/bash" ./SPECS/asbru.spec >> ./tmp/buildlog 2>&1
+cd ${PACKAGE_DIR} || exit 1
 
-if [ $? -eq 0 ] ; then
+if rpmbuild -bb --define "_topdir $(pwd)" --define "_version ${RPM_VERSION}" --define "_release ${RELEASE_COUNT}" --define "_github_version ${RELEASE}" --define "_buildshell /bin/bash" ./SPECS/asbru.spec >> ./tmp/buildlog 2>&1; then
   echo -e " $OK !"
   echo "This look like good news, package succesfully build in ${PACKAGE_DIR}/RPMS :)"
 else
