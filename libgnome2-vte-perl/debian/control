@@ -3,7 +3,7 @@ Section: perl
 Priority: optional
 Maintainer: Ásbrú Project Team <contact@asbru-cm.net>
 Uploaders: Peter J. Mello <admin@petermello.net>
-Build-Depends: debhelper-compat (= 11), perl (>= 5.8.0),
+Build-Depends: debhelper-compat (= 12), perl (>= 5.8.0),
  libvte-dev (>= 1:0.10.27), libgtk2-perl (>= 2:1.249),
  libglib-perl (>= 3:1.304), libextutils-depends-perl (>= 0.305),
  libextutils-pkgconfig-perl (>= 1.15)
@@ -12,7 +12,6 @@ Homepage: http://gtk2-perl.sourceforge.net/
 Vcs-Browser: https://gitlab.gnome.org/GNOME/perl-gnome2-vte
 Vcs-Git: https://gitlab.gnome.org/GNOME/perl-gnome2-vte.git
 Testsuite: autopkgtest-pkg-perl
-Rules-Requires-Root: binary-targets
 
 Package: libgnome2-vte-perl
 Architecture: any
@@ -23,9 +22,10 @@ Description: Perl interface to the Virtual Terminal Emulation library
  This module allows you to use the Virtual Terminal Emulation library
  (libvte for short) from Perl.
  .
-  The canonical API documentation can be found at:
-    http://developer.gnome.org/doc/API/2.0/vte/index.html
+ The perl bindings follow the C API very closely, and the C reference
+ documentation should be considered the canonical source:
+ http://developer.gnome.org/doc/API/2.0/vte/index.html
  .
  Gnome2::Vte also comes with automatically generated API documentation.
  Its index can be accessed with:
-    perldoc Gnome2::Vte::index
+ perldoc Gnome2::Vte::index

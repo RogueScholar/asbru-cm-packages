@@ -1,4 +1,4 @@
-libgnome2-gconf-perl (1.044-7) unstable; urgency=low
+libgnome2-gconf-perl (1.044-7) unstable; urgency=medium
 
   * d/control: Increase dh level to 12 via debhelper-compat string
   * Change Maintainer to Asbru Project Team, Uploader to Peter J. Mello

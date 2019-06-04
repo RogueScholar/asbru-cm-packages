@@ -51,6 +51,9 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Use unminimize script to rehydrate Docker image to Ubuntu Server
+          command: yes | sudo unminimize
+      - run:
           name: Update apt and install build dependencies
           command: >
             sudo apt -y full-upgrade && sudo apt -y install add-apt-key dh-acc
@@ -59,7 +62,7 @@ jobs:
             dh-translations libgconf2-dev gconf-defaults-service pristine-tar
             libdbus-glib-1-dev libextutils-depends-perl pkg-perl-autopkgtest
             libextutils-pkgconfig-perl libglade2-dev libgtk2-perl libunique-dev
-            libvte-dev quilt software-properties-common xz-utils
+            libvte-dev man-db quilt software-properties-common xz-utils
       - run:
           name: Add ppa:roguescholar/ppa to apt sources and upgrade
           command: >
@@ -161,13 +164,16 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Use unminimize script to rehydrate Docker image to Ubuntu Server
+          command: yes | sudo unminimize
+      - run:
           name: Update apt and install build dependencies
           command: >
             sudo apt update && sudo apt -y full-upgrade && sudo apt -y install
             apt-transport-https autopkgtest binutils-multiarch build-essential
             dbus-user-session debhelper devscripts dh-acc dh-make dh-make-perl
             ftp gconf-service gconf-service-backend gconf2-common
-            gtk2-engines-pixbuf libargon2-1 libcairo-perl
+            gtk2-engines-pixbuf libargon2-1 libcairo-perl man-db
             libcanberra-gtk-module libcap2 libcrypt-blowfish-perl
             libcrypt-cbc-perl libcrypt-rijndael-perl libcryptsetup12
             libdbus-glib-1-2 libdevmapper1.02.1 libexpect-perl libgconf-2-4
@@ -240,11 +246,14 @@ jobs:
     executor: ubuntu-disco
     steps:
       - run:
+          name: Use unminimize script to rehydrate Docker image to Ubuntu Server
+          command: yes | sudo unminimize
+      - run:
           name: Update apt and install testing packages
           command: >
             sudo apt update && sudo apt full-upgrade -y && sudo apt install -y
             add-apt-key adequate apt-transport-https apt-utils autopkgtest
-            dbus-x11 debhelper debtags fakeroot ftp gconf-service
+            dbus-x11 debhelper debtags fakeroot ftp gconf-service man-db
             gtk2-engines-pixbuf libcairo-perl libcanberra-gtk-module
             libcrypt-blowfish-perl libcrypt-cbc-perl libcrypt-rijndael-perl
             libexpect-perl libgconf-2-4 libglade2-0 libglib-perl libgtk2.0-0
@@ -254,7 +263,6 @@ jobs:
       - run:
           name: Add ppa:roguescholar/ppa to apt sources and upgrade
           command: >
-            sudo mv -f ./.circleci/disco-sources.list /etc/apt/sources.list &&
             sudo add-apt-repository -usy ppa:roguescholar/ppa && sudo apt -y
             full-upgrade
       - attach_workspace:

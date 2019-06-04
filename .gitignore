@@ -9,6 +9,9 @@
 .*.kate-swp
 .swp.*
 
+# CudaText project files are user-specific
+*.cuda-proj
+
 # Cache files for Sublime Text
 *.tmlanguage.cache
 *.tmPreferences.cache

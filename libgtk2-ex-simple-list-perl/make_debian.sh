@@ -4,6 +4,10 @@
 # first failed process rather than the last command in the sequence
 set -o pipefail
 
+# Explicitly set IFS to only newline and tab characters, eliminating errors
+# caused by absolute paths where directory names contain spaces, etc.
+IFS="$(printf '\n\t')"
+
 # Print ASCII art with ANSI colors to brand the process
 echo -e "\\e[36m
 \\t      __       _            __
@@ -22,7 +26,7 @@ cd "${SCRIPT_DIR}" || exit 1
 # Information about the git repository, build environment and Perl module source saved to variables
 PACKAGE_NAME="libgtk2-ex-simple-list-perl"
 PACKAGE_VER="0.50"
-DEBIAN_VER="$(grep -P -m 1 -o "\\d*\\.\\d*-\\d*" debian/changelog)~asbru1"
+DEBIAN_VER="$(grep -P -m 1 -o '\d*\.\d*-\d*' debian/changelog)~asbru1"
 PACKAGE_DIR="${SCRIPT_DIR}/tmp"
 ORIG_PACKAGE_NAME="Gtk2-Ex-Simple-List-${PACKAGE_VER}"
 PACKAGE_SRC="https://cpan.metacpan.org/authors/id/R/RM/RMCFARLA/Gtk2-Perl-Ex/${ORIG_PACKAGE_NAME}.tar.gz"
@@ -31,13 +35,13 @@ BUILD_ARCH="$(dpkg --print-architecture)"
 
 # Save the final build status messages to functions
 good_news() {
-  echo -e "\\t\\e[32;40mSUCCESS:\\e[0m I have good news!"
+  echo -e '\t\e[32;40mSUCCESS:\e[0m I have good news!'
   echo -e "\\t\\t${PACKAGE_NAME}_${DEBIAN_VER}_${PACKAGE_ARCH}.deb was successfully built in ${PACKAGE_DIR}!"
   echo -e "\\n\\t\\tYou can install it by typing: sudo apt install ${PACKAGE_DIR}/${PACKAGE_NAME}_${DEBIAN_VER}_${PACKAGE_ARCH}.deb"
 }
 bad_news() {
-  echo -e "\\t\\e[33;40mERROR:\\e[0m I have bad news... :-("
-  echo -e "\\t\\tThe build process was unable to complete successfully."
+  echo -e '\t\e[33;40mERROR:\e[0m I have bad news... :-('
+  echo -e '\t\tThe build process was unable to complete successfully.'
   echo -e "\\t\\tPlease check the ${PACKAGE_DIR}/${PACKAGE_NAME}_${DEBIAN_VER}_${BUILD_ARCH}.build file to get more information."
 }
 
@@ -55,7 +59,7 @@ mkdir -p "${PACKAGE_DIR}"
 echo "Downloading the official module source code from the Comprehensive Perl Archive Network..."
 
 if wget -qc -t 3 --show-progress ${PACKAGE_SRC} -O "${PACKAGE_DIR}"/${PACKAGE_NAME}_${PACKAGE_VER}.orig.tar.gz; then
-  echo -e "\\e[37;42mOK:\\e[0m Successfully downloaded the file from CPAN."
+  echo -e '\e[37;42mOK:\e[0m Successfully downloaded the file from CPAN.'
 else
   echo -e "\\e[37;41mERROR:\\e[0m Unable to download ${ORIG_PACKAGE_NAME} from CPAN."
   exit 1
@@ -72,7 +76,7 @@ cd "${PACKAGE_DIR}"/${ORIG_PACKAGE_NAME}/ || exit 1
 
 # Append non-destructive "~asbru1" suffix to version number to indicate a local package and
 # replace the generic distribution string "unstable" with the distribution codename of the build system
-perl -i -pe "s/$(grep -P -m 1 -o "\\d*\\.\\d*-\\d*" debian/changelog)/$&~asbru1/" debian/changelog
+perl -i -pe "s/$(grep -P -m 1 -o '\d*\.\d*-\d*' debian/changelog)/$&~asbru1/" debian/changelog
 sed -i "1s/unstable/$(lsb_release -cs)/" debian/changelog
 
 # Call debuild to oversee the build process and produce an output string for the user based on its exit code

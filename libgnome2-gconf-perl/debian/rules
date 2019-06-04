@@ -1,6 +1,7 @@
 #!/usr/bin/make -f
 
-export DEB_BUILD_MAINT_OPTIONS="future=+lfs hardening=+all reproducible=+fixfilepath"
+export DEB_BUILD_MAINT_OPTIONS = future=+lfs hardening=+all reproducible=+fixfilepath
+MAN2POD := perl "-MExtUtils::Command::MM" -e pod2man "--" -u --section=3pm
 DPKG_EXPORT_BUILDFLAGS = 1
 include /usr/share/dpkg/buildflags.mk
 
@@ -8,6 +9,21 @@ include /usr/share/dpkg/buildflags.mk
 %:
 	dh $@
 
+
+override_dh_auto_build:
+	dh_auto_build
+	$(MAN2POD) blib/lib/Gnome2/GConf/index.pod blib/man3/Gnome2::GConf::index.3pm
+	$(MAN2POD) blib/lib/Gnome2/GConf/ChangeSet.pod blib/man3/Gnome2::GConf::ChangeSet.3pm
+	$(MAN2POD) blib/lib/Gnome2/GConf/Client.pod blib/man3/Gnome2::GConf::Client.3pm
+	$(MAN2POD) blib/lib/Gnome2/GConf/Engine.pod blib/man3/Gnome2::GConf::Engine.3pm
+	$(MAN2POD) blib/lib/Gnome2/GConf/Entry.pod blib/man3/Gnome2::GConf::Entry.3pm
+	$(MAN2POD) blib/lib/Gnome2/GConf/Schema.pod blib/man3/Gnome2::GConf::Schema.3pm
+	$(MAN2POD) blib/lib/Gnome2/GConf/Value.pod blib/man3/Gnome2::GConf::Value.3pm
+	$(MAN2POD) blib/lib/Gnome2/GConf/main.pod blib/man3/Gnome2::GConf::main.3pm
+	$(MAN2POD) blib/lib/Gnome2/GConf/version.pod blib/man3/Gnome2::GConf::version.3pm
+	perl "-MExtUtils::Command::MM" -e pod2man "--" -u --name=Gnome2::GConf --section=3pm \
+		GConf.pm blib/man3/Gnome2::GConf.3pm
+	chmod 0644 blib/man3/Gnome2::GConf*
 
 override_dh_auto_test:
 	dbus-run-session -- dh_auto_test

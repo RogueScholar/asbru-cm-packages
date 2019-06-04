@@ -4,6 +4,10 @@
 # first failed process rather than the last command in the sequence
 set -o pipefail
 
+# Explicitly set IFS to only newline and tab characters, eliminating errors
+# caused by absolute paths where directory names contain spaces, etc.
+IFS="$(printf '\n\t')"
+
 # ASCII art to brand the process
 echo -e "\\033[32m
 \\t      __       _            __
@@ -20,9 +24,9 @@ typeset -r SCRIPT_DIR="$(dirname "$(realpath -q "${BASH_SOURCE[0]}")")"
 cd "${SCRIPT_DIR}" || exit 1
 
 # Some working variables
-G="\\033[32m"
-B="\\033[39m"
-Y="\\033[33m"
+G='\e[32m'
+B='\e[39m'
+Y='\e[33m'
 OK="${G}OK${B}"
 ERROR="${Y}ERROR${B}"
 
@@ -44,7 +48,7 @@ else
   CURL=""
 fi
 
-if [[ -z "$1" ]]; then
+if [[ -z $1 ]]; then
   if [ ! "$JQ" == "" ] && [ ! "$CURL" == "" ]; then
     # Try to guess the latest release
     echo -n "No release given, querying GitHub ..."
@@ -60,7 +64,7 @@ else
   RELEASE=$1
 fi
 
-if [[ -z "$RELEASE" ]]; then
+if [[ -z $RELEASE ]]; then
   echo -e "${ERROR}"
   echo "Either we could not fetch the latest release or no releasename is given." 1>&2
   echo "Please provide a release name matching GitHub. It is case sensitive like 5.0.0-RC1" 1>&2
@@ -103,7 +107,7 @@ fi
 
 cd "${PACKAGE_DIR}" || exit 1
 
-if rpmbuild -bb --define "_topdir ${PACKAGE_DIR}" --define "_version ${RPM_VERSION}" --define "_release ${RELEASE_COUNT}" --define "_github_version ${RELEASE}" --define "_buildshell /bin/bash" ${PACKAGE_DIR}/SPECS/asbru-cm.spec >> ${PACKAGE_DIR}/RPMS/noarch/${PACKAGE_NAME}-${RELEASE}-${RELEASE_COUNT}.fc30.noarch.buildlog 2>&1; then
+if rpmbuild -bb --define "_topdir ${PACKAGE_DIR}" --define "_version ${RPM_VERSION}" --define "_release ${RELEASE_COUNT}" --define "_github_version ${RELEASE}" --define "_buildshell /bin/bash" ${PACKAGE_DIR}/SPECS/asbru-cm.spec >${PACKAGE_DIR}/RPMS/noarch/${PACKAGE_NAME}-${RELEASE}-${RELEASE_COUNT}.fc30.noarch.buildlog 2>&1; then
   echo -e "\\t\\e[32;40mSUCCESS:\\e[0m I have good news!"
   echo -e "\\t\\t${PACKAGE_NAME}-${RELEASE}-${RELEASE_COUNT}.fc30.noarch.rpm was successfully built in ${PACKAGE_DIR}/RPMS!"
 else
