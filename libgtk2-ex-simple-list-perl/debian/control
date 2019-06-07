@@ -1,7 +1,7 @@
 Source: libgtk2-ex-simple-list-perl
 Section: perl
 Priority: optional
-Build-Depends: debhelper (>= 11)
+Build-Depends: debhelper-compat (= 12)
 Build-Depends-Indep: perl, xauth, xvfb, libglib-perl, libgtk2-perl
 Maintainer: Debian Perl Group <pkg-perl-maintainers@lists.alioth.debian.org>
 Uploaders: Ansgar Burchardt <ansgar@debian.org>

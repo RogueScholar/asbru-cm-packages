@@ -2,6 +2,15 @@
 	"folders":
 	[
 		{
+			"file_exclude_patterns":
+			[
+				"asbru-cm-packages.sublime-workspace",
+				"asbru-cm-packages.cuda-proj"
+			],
+			"folder_exclude_patterns":
+			[
+				"libgnome2-vte-perl/tmp"
+			],
 			"path": "."
 		}
 	]

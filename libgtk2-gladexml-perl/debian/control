@@ -1,15 +1,15 @@
 Source: libgtk2-gladexml-perl
-Maintainer: Debian Perl Group <pkg-perl-maintainers@lists.alioth.debian.org>
-Uploaders: Ryan Niebur <ryan@debian.org>
 Section: perl
 Priority: optional
-Build-Depends: debhelper (>= 9.20120312~),
-               perl,
+Maintainer: Ásbrú Project Team <contact@asbru-cm.net>
+Uploaders: Peter J. Mello <admin@petermello.net>
+Build-Depends: debhelper-compat (= 12), perl (>= 5.8.0),
                libextutils-depends-perl,
                libextutils-pkgconfig-perl,
                libglib-perl,
                libgtk2-perl,
                libglade2-dev,
+               man-db,
                xvfb,
                xauth,
                xfonts-base
@@ -32,7 +32,7 @@ Description: Perl interface to use user interfaces created with glade-2
  Glade is a free user interface builder for Gtk+ and GNOME. After designing
  a user interface with glade-2 the layout and configuration are saved in an
  XML file. libglade is a library which knows how to build and hook up the
- user interface described in the Glade XML file at application run time. 
+ user interface described in the Glade XML file at application run time.
  .
  This module even allows developers to load a interface definition into a
  scalar to customize them just before loading the application itself.
@@ -50,4 +50,3 @@ Description: Perl interface to use user interfaces created with glade-2
  .
  Also have a look at the gtk2-perl website and sourceforge project page,
  http://gtk2-perl.sourceforge.net
-
