@@ -1,5 +1,4 @@
-disable-orbit.patch
-fix-bad-whatis-entry.patch
 fix-manpage-error.patch
 fix-useless-whatis-entries.patch
+removed-gconf_engine_key_is_writable.patch
 retval-but-no-output.patch

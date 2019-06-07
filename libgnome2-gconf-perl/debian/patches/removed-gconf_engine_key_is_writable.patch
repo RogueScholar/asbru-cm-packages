@@ -1,0 +1,37 @@
+Description: Removed support for the non-existing symbol
+ Enabling hardened build flags as advised by debhelper compatibility level >= 11
+ with non-lazy DSO relocations caused compiler to throw errors. Removing this
+ reference solves the issue. Fedora encountered this bug in 2013 and forwarded
+ a patch which remains unmerged. Arch encountered it in 2017 and applied
+ aforementioned patch to their package.
+Author: Joan Figueras <ffigue@gmail.com>
+Origin: other, https://aur.archlinux.org/cgit/aur.git/commit/?h=perl-gnome2-gconf&id=9cfed84156bd797e6f640151dc2cd9bf87e5b59f
+Forwarded: no
+Reviewed-by: Peter J. Mello <admin@petermello.net>
+Last-Update: 2019-06-07
+
+--- a/xs/GConfEngine.xs
++++ b/xs/GConfEngine.xs
+@@ -350,22 +350,6 @@
+ 	if (err)
+ 		gperl_croak_gerror (NULL, err);
+
+-##gboolean gconf_engine_key_is_writable  (GConfEngine *conf,
+-##                                        const gchar *key,
+-##                                        GError     **err);
+-gboolean
+-gconf_engine_key_is_writable (engine, key)
+-	GConfEngine * engine
+-	const gchar * key
+-    PREINIT:
+-    	GError *err = NULL;
+-    CODE:
+-    	RETVAL = gconf_engine_key_is_writable (engine, key, &err);
+-	if (err)
+-		gperl_croak_gerror (NULL, err);
+-    OUTPUT:
+-        RETVAL
+-
+ guint
+ gconf_engine_notify_add (engine, namespace_section, func, data=NULL)
+ 	GConfEngine * engine

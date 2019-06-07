@@ -6,40 +6,38 @@ set -o pipefail
 
 # Explicitly set IFS to only newline and tab characters, eliminating errors
 # caused by absolute paths where directory names contain spaces, etc.
-IFS="$(printf '\n\t')"
+IFS="$(printf '\n\t')"
 
 # Print ASCII art with ANSI colors to brand the process
-echo -e "\\e[36m
-\\t      __       _            __
-\\t     /_/      | |          /_/
-\\t     / \   ___| |__  _ __ _   _
-\\t    / _ \ / __| '_ \| '__| | | |       \\e[33m https://asbru-cm.net/ \\e[36m
-\\t   / ___ \\__ \ |_) | |  | |_| |
-\\t  /_/   \_\___/_.__/|_|   \__,_|
-\\t         \\e[35mConnection Manager\\e[0m"
+base64 -d <<<"H4sIAEfB+lwAA12PsQ4CIQyGZ3kFlm7GRA8N0cHV2SeA5M95uagDnLnD7R7eFk
+GNJfwp/T/aVDu7C2pBOQDt7CFQeZEWk74BFNLA/JAzzX9k9StOPv8Gk4B0ZkUe8SYMZ16UiSWnog
+LLyYRYXJfLLVbZEUEBeCBTHkzAoGERSypYY1Z1QZKV9uE0xNh36T5EOrexvfbjB2DfhltKj+loTD
+tdxuemC03sk9JuG9QLw5ZXai8BAAA=" | gunzip
 
-# Find the absolute path to the script and make its folder the working directory,
-# in case invoked from elsewhere
-typeset -r SCRIPT_DIR="$(dirname "$(realpath -q "${BASH_SOURCE[0]}")")"
+# Find the absolute path to the script, strip non-POSIX-compliant control
+# characters, convert to Unicode and make that folder the working dir, in case
+# script is invoked from another directory or through a symlink
+typeset -r SCRIPT_DIR="$(dirname "$(realpath -q "${BASH_SOURCE[0]}")" |
+  LC_ALL=POSIX tr -d '[:cntrl:]' | iconv -cs -f UTF-8 -t UTF-8)"
 cd "${SCRIPT_DIR}" || exit 1
 
-# Information about the git repository, build environment and Perl module source saved to variables
+# Information about the file paths, build environment and Perl module source
 PACKAGE_NAME="libgtk2-gladexml-perl"
 PACKAGE_VER="1.007"
-DEBIAN_VER="$(grep -P -m 1 -o '\d*\.\d*-\d*' debian/changelog)~asbru1"
-PACKAGE_DIR="${SCRIPT_DIR}/tmp"
 ORIG_PACKAGE_NAME="Gtk2-GladeXML-${PACKAGE_VER}"
 PACKAGE_SRC="https://cpan.metacpan.org/authors/id/T/TS/TSCH/${ORIG_PACKAGE_NAME}.tar.gz"
+PACKAGE_DIR="${SCRIPT_DIR}/tmp"
 PACKAGE_ARCH="$(dpkg --print-architecture)"
+DEBIAN_VER="$(grep -P -m 1 -o '\d*\.\d*-\d*' debian/changelog)~asbru1"
 
 # Save the final build status messages to functions
 good_news() {
-  echo -e '\t\e[32;40mSUCCESS:\e[0m I have good news!'
+  echo -e '\t\e[37;42mSUCCESS:\e[0m I have good news!'
   echo -e "\\t\\t${PACKAGE_NAME}_${DEBIAN_VER}_${PACKAGE_ARCH}.deb was successfully built in ${PACKAGE_DIR}!"
   echo -e "\\n\\t\\tYou can install it by typing: sudo apt install ${PACKAGE_DIR}/${PACKAGE_NAME}_${DEBIAN_VER}_${PACKAGE_ARCH}.deb"
 }
 bad_news() {
-  echo -e '\t\e[33;40mERROR:\e[0m I have bad news... :-('
+  echo -e '\t\e[37;41mERROR:\e[0m I have bad news... :-('
   echo -e '\t\tThe build process was unable to complete successfully.'
   echo -e "\\t\\tPlease check the ${PACKAGE_DIR}/${PACKAGE_NAME}_${DEBIAN_VER}_${PACKAGE_ARCH}.build file to get more information."
 }
@@ -50,28 +48,58 @@ if [ ! -x "$(command -v debuild)" ]; then
   exit 1
 fi
 
-# Delete the build directory if it exists from earlier attempts and create it anew and empty
-rm -rf "${PACKAGE_DIR}"
-mkdir -p "${PACKAGE_DIR}"
+# Delete the build directory if it exists from earlier attempts then create it anew and empty
+if [ -d "${PACKAGE_DIR}" ]; then
+  rm -rf "${PACKAGE_DIR}"
+  mkdir -p "${PACKAGE_DIR}"
+else
+  mkdir -p "${PACKAGE_DIR}"
+fi
+
+# Find and declare the data transfer agent we'll use
+if [ -x "$(command -v wget)" ]; then
+  typeset -r TRANSFER_AGENT=wget
+elif [ -x "$(command -v curl)" ]; then
+  typeset -r TRANSFER_AGENT=curl
+else
+  echo -e '\t\e[37;41mERROR:\e[0m Neither curl nor wget was available to perform HTTP requests; please install one and try again.'
+  exit 1
+fi
 
 # Download the module tarball from CPAN
 echo "Downloading the official module source code from the Comprehensive Perl Archive Network..."
 
-if wget -qc -t 3 --show-progress ${PACKAGE_SRC} -O "${PACKAGE_DIR}"/${PACKAGE_NAME}_${PACKAGE_VER}.orig.tar.gz; then
-  echo -e '\e[37;42mOK:\e[0m Successfully downloaded the file from CPAN.'
-else
-  echo -e "\\e[37;41mERROR:\\e[0m Unable to download ${ORIG_PACKAGE_NAME} from CPAN."
-  exit 1
-fi
+case $TRANSFER_AGENT in
+  wget)
+    if wget -qc -t 3 --show-progress ${PACKAGE_SRC} -O "${PACKAGE_DIR}"/${PACKAGE_NAME}_${PACKAGE_VER}.orig.tar.gz; then
+      echo -e '\t\e[37;42mOK:\e[0m Successfully downloaded the file from CPAN.'
+    else
+      echo -e "\\t\\e[37;41mERROR:\\e[0m Unable to download ${ORIG_PACKAGE_NAME} from CPAN."
+      exit 1
+    fi
+    ;;
+  curl)
+    if curl -# --retry 3 -L ${PACKAGE_SRC} -o "${PACKAGE_DIR}"/${PACKAGE_NAME}_${PACKAGE_VER}.orig.tar.gz; then
+      echo -e '\t\e[37;42mOK:\e[0m Successfully downloaded the file from CPAN.'
+    else
+      echo -e "\\t\\e[37;41mERROR:\\e[0m Unable to download ${ORIG_PACKAGE_NAME} from CPAN."
+      exit 1
+    fi
+    ;;
+  *)
+    echo -e "\\t\\e[37;41mERROR:\\e[0m Unable to download ${ORIG_PACKAGE_NAME} from CPAN."
+    exit 1
+    ;;
+esac
 
 # Unpack the module in a directory equivalent to its CPAN name with version
 echo "Unpacking the module source code archive..."
-tar -xzf "${PACKAGE_DIR}"/${PACKAGE_NAME}_${PACKAGE_VER}.orig.tar.gz -C "${PACKAGE_DIR}"
+tar -xzf "${PACKAGE_DIR}/${PACKAGE_NAME}_${PACKAGE_VER}.orig.tar.gz" -C "${PACKAGE_DIR}"
 
 # Copy the Debian packaging files into the same directory as the source code and
 # make that source+packaging folder the new working directory
-cp -R debian/ "${PACKAGE_DIR}"/${ORIG_PACKAGE_NAME}/
-cd "${PACKAGE_DIR}"/${ORIG_PACKAGE_NAME}/ || exit 1
+cp -R "${SCRIPT_DIR}"/debian "${PACKAGE_DIR}"/${ORIG_PACKAGE_NAME}
+cd "${PACKAGE_DIR}"/${ORIG_PACKAGE_NAME} || exit 1
 
 # Append non-destructive "~asbru1" suffix to version number to indicate a local package and
 # replace the generic distribution string "unstable" with the distribution codename of the build system

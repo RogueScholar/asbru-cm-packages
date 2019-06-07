@@ -1,0 +1,15 @@
+---
+Archive: CPAN
+Bug-Database: "https://rt.cpan.org//Dist/Display.html?Queue=Gtk2-GladeXML"
+Bug-Submit: "https://rt.cpan.org/Ticket/Create.html?Queue=Gtk2-GladeXML"
+Changelog: "https://metacpan.org/changes/distribution/Gtk2-GladeXML"
+Contact: Gtk2-Perl Team <gtk-perl-list@gnome.org>
+Documentation: "https://metacpan.org/pod/Gtk2::GladeXML"
+FAQ: "https://wiki.gnome.org/Projects/GTK-Perl/FrequentlyAskedQuestions"
+Name: "Gtk2::GladeXML"
+Other-References: "https://sourceforge.net/projects/gtk2-perl/"
+Registration: "https://mail.gnome.org/mailman/listinfo/gtk-perl-list"
+Repository: "https://gitlab.gnome.org/GNOME/perl-gtk2-gladexml.git"
+Repository-Browse: "https://gitlab.gnome.org/GNOME/perl-gtk2-gladexml"
+Screenshots: "https://sourceforge.net/p/gtk2-perl/wiki/Home/"
+Security-Contact: Brian Manning <bmanning@src.gnome.org>

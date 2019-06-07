@@ -1,24 +1,23 @@
 Source: libgtk2-unique-perl
-Maintainer: Ásbrú Project Team <contact@asbru-cm.net>
+Section: perl
 Priority: optional
-Build-Depends: perl,
-               debhelper-compat (= 12),
-               libextutils-depends-perl,
-               libextutils-pkgconfig-perl,
-               libgtk2-perl,
-               libunique-dev,
-               xvfb,
-               xauth,
-               xfonts-base
-Standards-Version: 3.9.5
+Maintainer: Ásbrú Project Team <contact@asbru-cm.net>
+Uploaders: Peter J. Mello <admin@petermello.net>
+Build-Depends: debhelper-compat (= 12), perl (>= 5.8.0),
+ libgtk2-perl (>= 1:1.190), libextutils-depends-perl (>= 0.300),
+ libextutils-pkgconfig-perl (>= 1.11), libunique-dev (>= 1.0.2),
+ xauth (>= 1:1.0.3), xfonts-base (>= 1:1.0.0),xvfb (>= 2:1.5.1)
+Standards-Version: 4.3.0
 Homepage: https://metacpan.org/release/Gtk2-Unique
 
 Package: libgtk2-unique-perl
 Architecture: any
-Depends: ${misc:Depends},
-         ${perl:Depends},
-         ${shlibs:Depends},
-         libgtk2-perl
+Depends: libatk1.0-0 (>= 1.12.4), libcairo2 (>= 1.2.4),
+ libfontconfig1 (>= 2.11), libfreetype6 (>= 2.2.1),
+ libgdk-pixbuf2.0-0 (>= 2.22.0), libglib2.0-0 (>= 2.24.0),
+ libgtk2-perl (>= 1:1.190), libgtk2.0-0 (>= 2.8.0), libpango-1.0-0 (>= 1.14.0),
+ libpangocairo-1.0-0 (>= 1.14.0), libpangoft2-1.0-0 (>= 1.14.0),
+ libunique-1.0-0 (>= 1.0.2), ${perl:Depends}, ${shlibs:Depends}, ${misc:Depends}
 Description: module for single instance applications
  Gtk2::Unique is a Perl interface to the libunique library, which provides a
  way to write single instance applications. If you launch a single instance

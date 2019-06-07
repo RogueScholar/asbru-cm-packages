@@ -57,12 +57,12 @@ jobs:
           name: Update apt and install build dependencies
           command: >
             sudo apt -y full-upgrade && sudo apt -y install add-apt-key dh-acc
-            autopkgtest binutils-multiarch devscripts dh-buildinfo dh-exec
-            dh-make dh-make-perl dh-metainit dh-migrations dh-python dh-runit
+            autopkgtest binutils-multiarch dbus-x11 devscripts dh-buildinfo
+            dh-exec dh-make dh-make-perl dh-metainit dh-migrations dh-python
             dh-translations libgconf2-dev gconf-defaults-service pristine-tar
             libdbus-glib-1-dev libextutils-depends-perl pkg-perl-autopkgtest
             libextutils-pkgconfig-perl libglade2-dev libgtk2-perl libunique-dev
-            libvte-dev man-db quilt software-properties-common xz-utils
+            dh-runit libvte-dev man-db quilt software-properties-common xz-utils
       - run:
           name: Add ppa:roguescholar/ppa to apt sources and upgrade
           command: >
@@ -71,7 +71,9 @@ jobs:
             full-upgrade
       - run:
           name: Build libgnome2-gconf-perl
-          command: ./libgnome2-gconf-perl/make_debian.sh
+          command: |
+            sudo ./.circleci/disable-oomscoreadjust.conf
+            ./libgnome2-gconf-perl/make_debian.sh
       - persist_to_workspace:
           root: /home/circleci/packages/libgnome2-gconf-perl/tmp
           paths: libgnome2-gconf-perl_*.deb

@@ -4,29 +4,23 @@ Priority: optional
 Maintainer: Ásbrú Project Team <contact@asbru-cm.net>
 Uploaders: Peter J. Mello <admin@petermello.net>
 Build-Depends: debhelper-compat (= 12), perl (>= 5.8.0),
-               libextutils-depends-perl,
-               libextutils-pkgconfig-perl,
-               libglib-perl,
-               libgtk2-perl,
-               libglade2-dev,
-               man-db,
-               xvfb,
-               xauth,
-               xfonts-base
-Standards-Version: 3.9.5
-Vcs-Browser: http://anonscm.debian.org/gitweb/?p=pkg-perl/packages/libgtk2-gladexml-perl.git
-Vcs-Git: git://anonscm.debian.org/pkg-perl/packages/libgtk2-gladexml-perl.git
+ libglade2-dev (>= 1:2.6.2), libglib-perl (>= 1:1.190), libgtk2-perl (>= 1:1.190),
+ libextutils-depends-perl (>= 0.300), libextutils-pkgconfig-perl (>= 1.11),
+ man-db (>= 2.5.2), xauth (>= 1:1.0.3), xfonts-base (>= 1:1.0.0),
+ xvfb (>= 2:1.5.1)
+Standards-Version: 4.3.0
 Homepage: http://gtk2-perl.sourceforge.net/
+Vcs-Browser: https://gitlab.gnome.org/GNOME/perl-gtk2-gladexml
+Vcs-Git: https://gitlab.gnome.org/GNOME/perl-gtk2-gladexml.git
+Testsuite: autopkgtest-pkg-perl
 
 Package: libgtk2-gladexml-perl
 Architecture: any
-Depends: ${perl:Depends},
-         ${shlibs:Depends},
-         ${misc:Depends},
-         libglib-perl,
-         libgtk2-perl
+Depends: libglade2-0 (>= 1:2.6.2), libglib-perl (>= 1:1.190),
+ libgtk2-perl (>= 1:1.190), ${perl:Depends}, ${shlibs:Depends}, ${misc:Depends}
+Homepage: https://metacpan.org/release/Gtk2-GladeXML
 Description: Perl interface to use user interfaces created with glade-2
- libgtk2-gladexml-perl allows a Perl developer to use the gladexml part of
+ Gtk2::GladeXML allows a Perl developer to use the GladeXML part of
  the libglade library.
  .
  Glade is a free user interface builder for Gtk+ and GNOME. After designing
@@ -37,16 +31,9 @@ Description: Perl interface to use user interfaces created with glade-2
  This module even allows developers to load a interface definition into a
  scalar to customize them just before loading the application itself.
  .
- Find out more about GNOME at http://www.gnome.org.
- .
  The perl bindings follow the C API very closely, and the C reference
  documentation should be considered the canonical source:
  http://developer.gnome.org/doc/API/2.0/libglade/index.html
  .
- This module is part of gtk2-perl.
- .
- To discuss gtk2-perl, ask questions and flame/praise the authors,
- join gtk-perl-list@gnome.org at lists.gnome.org.
- .
- Also have a look at the gtk2-perl website and sourceforge project page,
- http://gtk2-perl.sourceforge.net
+ This module is part of gtk2-perl. To discuss gtk2-perl, ask questions and
+ flame/praise the authors, join gtk-perl-list@gnome.org at lists.gnome.org.

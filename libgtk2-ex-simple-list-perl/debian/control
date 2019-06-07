@@ -2,19 +2,21 @@ Source: libgtk2-ex-simple-list-perl
 Section: perl
 Priority: optional
 Build-Depends: debhelper-compat (= 12)
-Build-Depends-Indep: perl, xauth, xvfb, libglib-perl, libgtk2-perl
-Maintainer: Debian Perl Group <pkg-perl-maintainers@lists.alioth.debian.org>
-Uploaders: Ansgar Burchardt <ansgar@debian.org>
-Standards-Version: 4.1.4
-Homepage: https://metacpan.org/release/Gtk2-Ex-Simple-List
-Vcs-Git: https://salsa.debian.org/perl-team/modules/packages/libgtk2-ex-simple-list-perl.git
-Vcs-Browser: https://salsa.debian.org/perl-team/modules/packages/libgtk2-ex-simple-list-perl
+Build-Depends-Indep: perl (>= 5.8.0), libglib-perl (>= 1:1.190),
+ libgtk2-perl (>= 1:1.190), xauth (>= 1:1.0.3), xvfb (>= 2:1.5.1)
+Maintainer: Ásbrú Project Team <contact@asbru-cm.net>
+Uploaders: Peter J. Mello <admin@petermello.net>
+Standards-Version: 4.3.0
+Homepage: http://gtk2-perl-ex.sourceforge.net/
+Vcs-Cvs: cvs -d:pserver:anonymous@gtk2-perl-ex.cvs.sourceforge.net:/cvsroot/gtk2-perl-ex co -P Gtk2-Ex
+Vcs-Browser: https://metacpan.org/source/RMCFARLA/Gtk2-Ex-Simple-List-0.50
 Testsuite: autopkgtest-pkg-perl
 
 Package: libgtk2-ex-simple-list-perl
 Architecture: all
-Depends: ${perl:Depends}, ${misc:Depends}, libglib-perl, libgtk2-perl
-Description: simple interface to Gtk2's complex MVC list widget
+Depends: libglib-perl (>= 1:1.190), libgtk2-perl (>= 1:1.190), ${perl:Depends},
+ ${shlibs:Depends}, ${misc:Depends}
+Description: Simple interface to Gtk2's complex MVC list widget
  Gtk2::Ex::Simple::List is a simple interface to the powerful but complex
- Gtk2::TreeView and Gtk2::ListStore combination, implementing using tied
- arrays to make thing simple and easy.
+ Gtk2::TreeView and Gtk2::ListStore combination, implementing using tied arrays
+ to make thing simple and easy.
