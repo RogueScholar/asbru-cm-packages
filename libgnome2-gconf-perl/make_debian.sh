@@ -15,8 +15,8 @@ LLyYRYXJfLLVbZEUEBeCBTHkzAoGERSypYY1Z1QZKV9uE0xNh36T5EOrexvfbjB2DfhltKj+loTD
 tdxuemC03sk9JuG9QLw5ZXai8BAAA=" | gunzip
 
 # Find the absolute path to the script, strip non-POSIX-compliant control
-# characters, convert to Unicode and make that folder the working dir, in case
-# script is invoked from another directory or through a symlink
+# characters, convert to Unicode and make that folder the working directory, in
+# case the script is invoked from another directory or through a symlink.
 typeset -r SCRIPT_DIR="$(dirname "$(realpath -q "${BASH_SOURCE[0]}")" |
   LC_ALL=POSIX tr -d '[:cntrl:]' | iconv -cs -f UTF-8 -t UTF-8)"
 cd "${SCRIPT_DIR}" || exit 1

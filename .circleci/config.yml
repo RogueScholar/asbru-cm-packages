@@ -248,14 +248,15 @@ jobs:
           name: Update apt and install testing packages
           command: >
             sudo apt update && sudo apt install -y add-apt-key adequate schroot
-            apt-transport-https apt-utils autopkgtest dbus-x11 debhelper
-            fakeroot ftp gconf-service man-db gtk2-engines-pixbuf libcairo-perl
-            libcanberra-gtk-module libcrypt-blowfish-perl libcrypt-cbc-perl
-            libcrypt-rijndael-perl libexpect-perl libgconf-2-4 libglade2-0
-            libglib-perl libgtk2.0-0 libgtk2-perl libnet-arp-perl telnet
-            libnet-proxy-perl libossp-uuid-perl libpango-perl libsocket6-perl
-            libunique-1.0-0 libvte9 libyaml-perl lintian pbuilder piuparts
-            software-properties-common
+            apt-transport-https apt-utils autopkgtest check-all-the-things
+            dbus-x11 debhelper fakeroot ftp gconf-service man-db piuparts
+            gtk2-engines-pixbuf libcairo-perl libcanberra-gtk-module
+            libcrypt-blowfish-perl libcrypt-cbc-perl libcrypt-rijndael-perl
+            libexpect-perl libgconf-2-4 libglade2-0 libglib-perl libgtk2.0-0
+            libgtk2-perl libnet-arp-perl telnet libnet-proxy-perl
+            libossp-uuid-perl libpango-perl libsocket6-perl libunique-1.0-0
+            libvte9 libyaml-perl lintian pbuilder software-properties-common
+      - checkout
       - run:
           name: Add complete set of Ubuntu repos to apt sources and upgrade
           command: |
@@ -295,7 +296,15 @@ jobs:
           command: >
             echo "Testing library package install results with piuparts...";
             find /home/circleci -type f -name '*.deb' | sudo xargs piuparts
-            2>&1 | tee /home/circleci/deb-test-reports/piuparts.txt
+            -D ubuntu -d disco -l /home/circleci/deb-test-reports/piuparts.txt
+            --merged-usr
+      - run:
+          name: Test package installation results with check-all-the-things
+          command: >
+            echo "Testing software environment results with check-all-the-things
+            ..."; find /home/circleci -type f -name '*.deb' | sudo xargs
+            check-all-the-things -a -d ubuntu -r disco 2>&1 | tee -a 
+            /home/circleci/deb-test-reports/check-all-the-things.txt
       - store_artifacts:
           path: /home/circleci/deb-test-reports
           destination: deb-package-tests

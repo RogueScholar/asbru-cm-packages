@@ -9,16 +9,10 @@ set -o pipefail
 IFS="$(printf '\n\t')"
 
 # Print ASCII art with ANSI colors to brand the process
-echo -e "\\e[31m
-\\t      __\\e[36m       _ \\e[31m           __
-\\t     /_/\\e[36m      | |\\e[31m          /_/\\e[36m
-\\t     / \   ___| |__  _ __ _   _ 
-\\t    / _ \ / __| '_ \| '__| | | |
-\\t   / ___ \\__ \ |_) | |  | |_| |
-\\t  /_/   \_\___/_.__/|_|   \__,_|
-\\n\\t        \\e[35mConnection Manager
-\\t       \\e[33mhttps://asbru-cm.net
-\\e[0m"
+base64 -d <<<"H4sIAEfB+lwAA12PsQ4CIQyGZ3kFlm7GRA8N0cHV2SeA5M95uagDnLnD7R7eFk
+GNJfwp/T/aVDu7C2pBOQDt7CFQeZEWk74BFNLA/JAzzX9k9StOPv8Gk4B0ZkUe8SYMZ16UiSWnog
+LLyYRYXJfLLVbZEUEBeCBTHkzAoGERSypYY1Z1QZKV9uE0xNh36T5EOrexvfbjB2DfhltKj+loTD
+tdxuemC03sk9JuG9QLw5ZXai8BAAA=" | gunzip
 
 # Find the absolute path to the script, strip non-POSIX-compliant control
 # characters, convert to Unicode and make that folder the working dir, in case

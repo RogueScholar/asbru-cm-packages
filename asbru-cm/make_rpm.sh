@@ -21,99 +21,123 @@ typeset -r SCRIPT_DIR="$(dirname "$(realpath -q "${BASH_SOURCE[0]}")" |
   LC_ALL=POSIX tr -d '[:cntrl:]' | iconv -cs -f UTF-8 -t UTF-8)"
 cd "${SCRIPT_DIR}" || exit 1
 
-# Some working variables
-G='\e[32m'
-B='\e[39m'
-Y='\e[33m'
-OK="${G}OK${B}"
-ERROR="${Y}ERROR${B}"
-
-# Let's check some basic requirements
-if ! [ -x "$(command -v rpmbuild)" ]; then
-  echo "rpmbuild is required, did you install the 'rpm' package yet ?"
-  exit 1
-fi
-
-# Some other optional requirements
-if [ -x "$(command -v jq)" ]; then
-  JQ=$(command -v jq)
-else
-  JQ=""
-fi
-if [ -x "$(command -v curl)" ]; then
-  CURL=$(command -v curl)
-else
-  CURL=""
-fi
-
-if [[ -z $1 ]]; then
-  if [ ! "$JQ" == "" ] && [ ! "$CURL" == "" ]; then
-    # Try to guess the latest release
-    echo -n "No release given, querying GitHub ..."
-    all_releases=$(${CURL} -s https://api.github.com/repos/asbru-cm/asbru-cm/tags)
-    if [ -n "${all_releases}" ]; then
-      echo -e " ${OK} !"
-      echo -n -e "Extracting latest version ..."
-      RELEASE=$(echo "${all_releases}" | ${JQ} -r '.[0] | .name')
-      echo -e " found [${RELEASE}], ${OK} !"
-    fi
-  fi
-else
-  RELEASE=$1
-fi
-
-if [[ -z $RELEASE ]]; then
-  echo -e "${ERROR}"
-  echo "Either we could not fetch the latest release or no release-name is given." 1>&2
-  echo "Please provide a release name matching GitHub. It is case sensitive like 5.0.0-RC1" 1>&2
-  echo "You can find Ásbrú releases at https://github.com/asbru-cm/asbru-cm/releases" 1>&2
-  echo " " 1>&2
-  echo "If you want this tool to guess the latest release automatically, make sure the following tools are available:" 1>&2
-  echo " - curl (https://curl.haxx.se/)" 1>&2
-  echo " - jq (https://stedolan.github.io/jq)" 1>&2
-  echo " " 1>&2
-  exit 1
-fi
-
-PACKAGE_DIR="${SCRIPT_DIR}/tmp"
+# Information about the file paths, build environment and Perl module source
 PACKAGE_NAME="asbru-cm"
-RELEASE_RPM=${RELEASE,,}
-RPM_VERSION=${RELEASE_RPM/-/"~"}
+PACKAGE_DIR="${SCRIPT_DIR}/tmp"
+typeset -i RELEASE_COUNT=1
 BUILDLOG="${PACKAGE_DIR}/RPMS/noarch/${PACKAGE_NAME}-${RELEASE}-${RELEASE_COUNT}.fc30.noarch.buildlog"
-typeset -i RELEASE_COUNT
-RELEASE_COUNT=1
 
-# Makes sure working directories exist
-rm -rf "${PACKAGE_DIR}"
-mkdir -p "${PACKAGE_DIR}"/{BUILD,RPMS,SOURCES,SPECS,SRPMS}
+# Save the final build status messages to functions
+good_news() {
+  echo -e '\t\e[37;42mSUCCESS:\e[0m I have good news!'
+  echo -e "\\t\\t${PACKAGE_NAME}-${PACKAGE_VER}-${RELEASE_COUNT}.fc30.noarch.rpm was successfully built in ${PACKAGE_DIR}/RPMS!"
+  echo -e "\\n\\t\\tYou can install it by typing: dnf install ${PACKAGE_DIR}/RPMS/${PACKAGE_NAME}-${PACKAGE_VER}-${RELEASE_COUNT}.fc30.noarch.rpm"
+}
+bad_news() {
+  echo -e '\t\e[37;41mERROR:\e[0m I have bad news... :-('
+  echo -e '\t\tThe build process was unable to complete successfully.'
+  echo -e "\\t\\tPlease check the ${BUILDLOG} file to get more information."
+}
 
+# Let's check that we have an oven to bake the package before we go shopping for the ingredients
+if [ ! -x "$(command -v rpmbuild)" ]; then
+  echo -e "\\e[37;41mERROR:\\e[0m The rpmbuild command is required. Please install the 'rpm' package and try again."
+  exit 1
+fi
+
+# Delete the build directory if it exists from earlier attempts then create it anew and empty
+if [ -d "${PACKAGE_DIR}" ]; then
+  rm -rf "${PACKAGE_DIR}"
+  mkdir -p "${PACKAGE_DIR}"/{BUILD,RPMS,SOURCES,SPECS,SRPMS}
+else
+  mkdir -p "${PACKAGE_DIR}"/{BUILD,RPMS,SOURCES,SPECS,SRPMS}
+fi
+
+# Find and declare the data transfer agent we'll use
+if [ -x "$(command -v wget)" ]; then
+  typeset -r TRANSFER_AGENT=wget
+elif [ -x "$(command -v curl)" ]; then
+  typeset -r TRANSFER_AGENT=curl
+else
+  echo -e '\t\e[37;41mERROR:\e[0m Neither curl nor wget was available to perform HTTP requests; please install one and try again.'
+  exit 1
+fi
+
+# Download the name of the latest tagged release from GitHub
+echo "Reading the response to https://github.com/asbru-cm/asbru-cm/releases/latest..."
+
+case $TRANSFER_AGENT in
+  curl)
+    RESPONSE=$(curl -s -L -w 'HTTPSTATUS:%{http_code}' -H 'Accept: application/json' "https://github.com/asbru-cm/asbru-cm/releases/latest")
+    PACKAGE_VER=$(echo "${RESPONSE}" | sed -e 's/HTTPSTATUS\:.*//g' | tr -s '\n' ' ' | sed 's/.*"tag_name":"//' | sed 's/".*//')
+    HTTP_CODE=$(echo "${RESPONSE}" | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')
+    ;;
+  wget)
+    TEMP="$(mktemp)"
+    RESPONSE=$(wget -q --header='Accept: application/json' -O - --server-response "https://github.com/asbru-cm/asbru-cm/releases/latest" 2>"${TEMP}")
+    PACKAGE_VER=$(echo "${RESPONSE}" | tr -s '\n' ' ' | sed 's/.*"tag_name":"//' | sed 's/".*//')
+    HTTP_CODE=$(awk '/^  HTTP/{print $2}' <"${TEMP}" | tail -1)
+    rm "${TEMP}"
+    ;;
+  *)
+    echo -e '\t\e[37;41mERROR:\e[0m Neither curl nor wget was available to perform HTTP requests; please install one and try again.'
+    exit 1
+    ;;
+esac
+
+# Print the tagged version, or if we came up empty, give the user something to start troubleshooting with
+if [ "${HTTP_CODE}" != 200 ]; then
+  echo -e "\\t\\e[37;41mERROR:\\e[0m Request to GitHub for latest release data failed with code ${HTTP_CODE}."
+  exit 1
+else
+  echo -e "\\t\\e[37;42mOK:\\e[0m Latest Release Tag = ${PACKAGE_VER}"
+fi
+
+# Derive the RPM release and version strings from the latest tagged GitHub release
+RELEASE_RPM=${PACKAGE_VER,,}
+RPM_VERSION=${RELEASE_RPM/-/"~"}
+
+# Just hand over the tarball and nobody gets hurt, ya see?
+echo "Downloading https://github.com/asbru-cm/asbru-cm/archive/${PACKAGE_VER}.tar.gz..."
+
+case $TRANSFER_AGENT in
+  curl)
+    HTTP_CODE=$(curl -# --retry 3 -w '%{http_code}' -L "https://github.com/asbru-cm/asbru-cm/archive/${PACKAGE_VER}.tar.gz" \
+      -o "${PACKAGE_DIR}"/SOURCES/"${RPM_VERSION}".tar.gz)
+    ;;
+  wget)
+    HTTP_CODE=$(wget -qc -t 3 --show-progress -O "${PACKAGE_DIR}/SOURCES/${RPM_VERSION}.tar.gz" \
+      --server-response "https://github.com/asbru-cm/asbru-cm/archive/${PACKAGE_VER}.tar.gz" 2>&1 |
+      awk '/^  HTTP/{print $2}' | tail -1)
+    ;;
+  *)
+    echo -e "\\t\\e[37;41mERROR:\\e[0m Neither curl nor wget were able to connect to GitHub; please check your internet connection."
+    exit 1
+    ;;
+esac
+
+# Print the result of the tarball retrieval attempt
+if [ "${HTTP_CODE}" != 200 ]; then
+  echo -e "\\t\\e[37;41mERROR:\\e[0m Request to GitHub for latest release file failed with code ${HTTP_CODE}."
+  exit 1
+else
+  echo -e '\t\e[37;42mOK:\e[0m Successfully downloaded the latest asbru-cm package from GitHub.'
+fi
+
+# Copy the RPM spec script into the proper directory and create the destination directory
+# for the package and build log, then move into the packaging folder
 cp "${SCRIPT_DIR}/rpm/asbru-cm.spec" "${PACKAGE_DIR}/SPECS"
+mkdir -p "${PACKAGE_DIR}"/RPMS/noarch && cd "${PACKAGE_DIR}" || exit 1
 
 # Look for a "free" release count
-while [ -f "${PACKAGE_DIR}"/RPMS/noarch/asbru-cm-"${RPM_VERSION}"-"${RELEASE_COUNT}".fc30.noarch.rpm ]; do
+while [ -f "${PACKAGE_DIR}/RPMS/noarch/asbru-cm-${RPM_VERSION}-${RELEASE_COUNT}.fc30.noarch.rpm" ]; do
   RELEASE_COUNT+=1
 done
 
-if [ ! -f "${PACKAGE_DIR}"/SOURCES/"${RPM_VERSION}".tar.gz ]; then
-  wget -q https://github.com/asbru-cm/asbru-cm/archive/"${RELEASE}".tar.gz -O "${PACKAGE_DIR}"/SOURCES/"${RPM_VERSION}".tar.gz
-fi
-
-if [ ! -f "${PACKAGE_DIR}/SOURCES/${RPM_VERSION}.tar.gz" ]; then
-  echo "An error occurred while downloading release ${RELEASE}"
-  echo "Please check if that release actually exists and the server isn't down"
+if rpmbuild -bb --define "_topdir ${PACKAGE_DIR}" --define "_version ${RPM_VERSION}" --define "_release ${RELEASE_COUNT}" --define "_github_version ${PACKAGE_VER}" --define "_buildshell /bin/bash" "${PACKAGE_DIR}/SPECS/asbru-cm.spec" >"${BUILDLOG}" 2>&1; then
+  good_news
+  exit 0
+else
+  bad_news
   exit 1
 fi
-
-cd "${PACKAGE_DIR}" || exit 1
-
-mkdir -p "${${BUILDLOG}%/*}" && touch "${BUILDLOG}"
-
-if rpmbuild -bb --define "_topdir ${PACKAGE_DIR}" --define "_version ${RPM_VERSION}" --define "_release ${RELEASE_COUNT}" --define "_github_version ${RELEASE}" --define "_buildshell /bin/bash" "${PACKAGE_DIR}/SPECS/asbru-cm.spec" >"${BUILDLOG}" 2>&1; then
-  echo -e "\\t\\e[32;40mSUCCESS:\\e[0m I have good news!"
-  echo -e "\\t\\t${PACKAGE_NAME}-${RELEASE}-${RELEASE_COUNT}.fc30.noarch.rpm was successfully built in ${PACKAGE_DIR}/RPMS!"
-else
-  echo -e "${ERROR}"
-  echo "Bad news, something did not happen as expected, check ${PACKAGE_DIR}/RPMS/noarch/${PACKAGE_NAME}-${RELEASE}-${RELEASE_COUNT}.fc30.noarch.buildlog to get more information."
-fi
-
-echo "All done."

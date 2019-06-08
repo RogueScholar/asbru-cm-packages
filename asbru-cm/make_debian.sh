@@ -9,20 +9,14 @@ set -o pipefail
 IFS="$(printf '\n\t')"
 
 # Print ASCII art with ANSI colors to brand the process
-echo -e '\e[31m
-      __ \e[36m      _ \e[31m            __
-     /_/ \e[36m     | | \e[31m          /_/ \e[36m
-     / \   ___| |__  _ __ _   _ 
-    / _ \ / __| ´_ \| ´__| | | |
-   / ___ \\__ \ |_) | |  | |_| |
-  /_/   \_\___/_.__/|_|   \__,_| \n
-        \e[35mConnection Manager
-       \e[33mhttps://asbru-cm.net
-\e[0m'
+base64 -d <<<"H4sIAEfB+lwAA12PsQ4CIQyGZ3kFlm7GRA8N0cHV2SeA5M95uagDnLnD7R7eFk
+GNJfwp/T/aVDu7C2pBOQDt7CFQeZEWk74BFNLA/JAzzX9k9StOPv8Gk4B0ZkUe8SYMZ16UiSWnog
+LLyYRYXJfLLVbZEUEBeCBTHkzAoGERSypYY1Z1QZKV9uE0xNh36T5EOrexvfbjB2DfhltKj+loTD
+tdxuemC03sk9JuG9QLw5ZXai8BAAA=" | gunzip
 
 # Find the absolute path to the script, strip non-POSIX-compliant control
-# characters, convert to Unicode and make that folder the working dir, in case
-# script is invoked from another directory or through a symlink
+# characters, convert to Unicode and make that folder the working directory, in
+# case the script is invoked from another directory or through a symlink.
 typeset -r SCRIPT_DIR="$(dirname "$(realpath -q "${BASH_SOURCE[0]}")" |
   LC_ALL=POSIX tr -d '[:cntrl:]' | iconv -cs -f UTF-8 -t UTF-8)"
 cd "${SCRIPT_DIR}" || exit 1
