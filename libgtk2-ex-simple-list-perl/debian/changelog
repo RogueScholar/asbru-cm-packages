@@ -1,3 +1,18 @@
+libgtk2-ex-simple-list-perl (0.50-4) unstable; urgency=medium
+
+  * d/control: Bump debhelper compatibility level to 12
+  * d/copyright: Add/Correct missing or dated contact details
+  * d/rules: Added future=+lfs hardening=+all reproducible=+fixfilepath flags
+  * d/watch: Update to version 4 and fine-tune regex patterns
+  * Set proper minimum versions for Depends and Build-Depends packages
+  * Change Maintainer to Ásbrú Project Team and Uploader to Peter J. Mello
+  * Declare compliance with Debian Policy 4.3.0
+  * Update Vcs-Browser and Vcs-Git links to official GNOME GitLab instance
+  * Add lintian override for debian-watch-does-not-check-gpg-signature
+  * Add upstream metadata file for UMEGAYA inclusion
+
+ -- Peter J. Mello <admin@petermello.net>  Fri, 07 Jun 2019 16:25:52 -0700
+
 libgtk2-ex-simple-list-perl (0.50-3) unstable; urgency=medium
 
   * Team upload

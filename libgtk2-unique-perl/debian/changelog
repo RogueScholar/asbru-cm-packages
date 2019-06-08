@@ -1,3 +1,21 @@
+libgtk2-unique-perl (0.06-1) unstable; urgency=medium
+
+  * Fix: Segfault on starting second instance (Closes: RT-120115)
+  * Fix: Compilation warnings/stack smash from incompatible pointer type
+  * d/control: Bump debhelper compatibility level to 12
+  * d/control: Add Vcs-Browser/Vcs-Git links to official GNOME GitLab instance
+  * d/control: Add autopkgtest-pkg-perl test suite
+  * d/rules: Added future=+lfs hardening=+all reproducible=+fixfilepath flags
+  * d/watch: Update to version 4 and adjust regex for new GitLab repository
+  * Change Maintainer to Ásbrú Project Team and Uploader to Peter J. Mello
+  * Insert proper Build-Depends package versions
+  * Declare compliance with Debian Policy 4.3.0
+  * Add lintian override for debian-watch-does-not-check-gpg-signature
+  * Add local options directive to clean source tree patches after build
+  * Add upstream metadata file for UMEGAYA inclusion
+
+ -- Peter J. Mello <admin@petermello.net>  Fri, 07 Jun 2019 18:52:39 -0700
+
 libgtk2-unique-perl (0.05-3) unstable; urgency=medium
 
   [ Salvatore Bonaccorso ]

@@ -4,7 +4,7 @@ Forwarded: https://rt.cpan.org/Public/Bug/Display.html?id=95016
 
 --- a/xs/UniqueApp.xs
 +++ b/xs/UniqueApp.xs
-@@ -54,6 +54,9 @@
+@@ -57,6 +57,9 @@
  
  }
  

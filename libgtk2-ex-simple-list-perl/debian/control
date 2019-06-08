@@ -8,14 +8,14 @@ Maintainer: Ásbrú Project Team <contact@asbru-cm.net>
 Uploaders: Peter J. Mello <admin@petermello.net>
 Standards-Version: 4.3.0
 Homepage: http://gtk2-perl-ex.sourceforge.net/
-Vcs-Cvs: cvs -d:pserver:anonymous@gtk2-perl-ex.cvs.sourceforge.net:/cvsroot/gtk2-perl-ex co -P Gtk2-Ex
+Vcs-Cvs: :pserver:anonymous@gtk2-perl-ex.cvs.sourceforge.net:/cvsroot/gtk2-perl-ex Gtk2-Ex
 Vcs-Browser: https://metacpan.org/source/RMCFARLA/Gtk2-Ex-Simple-List-0.50
 Testsuite: autopkgtest-pkg-perl
 
 Package: libgtk2-ex-simple-list-perl
 Architecture: all
 Depends: libglib-perl (>= 1:1.190), libgtk2-perl (>= 1:1.190), ${perl:Depends},
- ${shlibs:Depends}, ${misc:Depends}
+ ${misc:Depends}
 Description: Simple interface to Gtk2's complex MVC list widget
  Gtk2::Ex::Simple::List is a simple interface to the powerful but complex
  Gtk2::TreeView and Gtk2::ListStore combination, implementing using tied arrays

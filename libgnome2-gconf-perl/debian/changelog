@@ -1,6 +1,6 @@
 libgnome2-gconf-perl (1.044-7) unstable; urgency=medium
 
-  * d/control: Increase debhelper level to 12
+  * d/control: Bump debhelper compatibility level to 12
   * d/patches: Patch source code errors where RETVAL was called with no output
   * d/rules: Added future=+lfs hardening=+all reproducible=+fixfilepath flags
     Call pod2man again after auto-build to write correct section to man pages

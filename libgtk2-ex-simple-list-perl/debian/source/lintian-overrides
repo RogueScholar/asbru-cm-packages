@@ -1,2 +1,2 @@
 # No GPG signatures published by upstream at MetaCPAN
-libgnome2-ex-simple-list-perl source: debian-watch-does-not-check-gpg-signature
+libgtk2-ex-simple-list-perl source: debian-watch-does-not-check-gpg-signature
