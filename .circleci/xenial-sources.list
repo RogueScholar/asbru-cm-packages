@@ -1,0 +1,10 @@
+deb http://us.archive.ubuntu.com/ubuntu xenial main restricted universe multiverse
+# deb-src http://us.archive.ubuntu.com/ubuntu xenial main restricted universe multiverse
+deb http://us.archive.ubuntu.com/ubuntu xenial-updates main restricted universe multiverse
+# deb-src http://us.archive.ubuntu.com/ubuntu xenial-updates main restricted universe multiverse
+deb http://us.archive.ubuntu.com/ubuntu xenial-backports main restricted universe multiverse
+# deb-src http://us.archive.ubuntu.com/ubuntu xenial-backports main restricted universe multiverse
+deb http://us.archive.ubuntu.com/ubuntu xenial-security main restricted universe multiverse
+# deb-src http://us.archive.ubuntu.com/ubuntu xenial-security main restricted universe multiverse
+deb http://us.archive.ubuntu.com/ubuntu xenial-proposed main universe multiverse restricted
+# deb-src http://us.archive.ubuntu.com/ubuntu xenial-proposed main universe multiverse restricted

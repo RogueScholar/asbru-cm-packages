@@ -3,7 +3,6 @@
 export DEB_BUILD_MAINT_OPTIONS = future=+lfs hardening=+all reproducible=+fixfilepath
 MAN2POD := perl "-MExtUtils::Command::MM" -e pod2man "--" -u --section=3pm
 DPKG_EXPORT_BUILDFLAGS = 1
-include /usr/share/dpkg/buildflags.mk
 
 
 %:

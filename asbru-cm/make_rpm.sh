@@ -134,7 +134,7 @@ while [ -f "${PACKAGE_DIR}/RPMS/noarch/asbru-cm-${RPM_VERSION}-${RELEASE_COUNT}.
   RELEASE_COUNT+=1
 done
 
-if rpmbuild -bb --define "_topdir ${PACKAGE_DIR}" --define "_version ${RPM_VERSION}" --define "_release ${RELEASE_COUNT}" --define "_github_version ${PACKAGE_VER}" --define "_buildshell /bin/bash" "${PACKAGE_DIR}/SPECS/asbru-cm.spec" >"${BUILDLOG}" 2>&1; then
+if rpmbuild -bb --define "_topdir ${PACKAGE_DIR}" --define "_version ${PACKAGE_VER}" --define "_release ${RELEASE_COUNT}%{?dist}" --define "_github_version ${PACKAGE_VER}" --define "_buildshell /bin/bash" "${PACKAGE_DIR}/SPECS/asbru-cm.spec" >"${BUILDLOG}" 2>&1; then
   good_news
   exit 0
 else

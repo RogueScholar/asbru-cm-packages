@@ -3,12 +3,11 @@
 Name:       asbru-cm
 Version:    %{_version}
 Release:    %{_release}%{?dist}
-Summary:    A user interface that helps organizing remote terminal sessions and automating repetitive tasks.
+Summary:    A multiplexing remote connection manager for all your SSH/RDP/Telnet/MOSH needs
 License:    GPLv3+
 URL:        https://asbru-cm.net
-Source0:    https://github.com/asbru-cm/asbru-cm/archive/%{version}.tar.gz
+Source0:    https://github.com/%{name}/%{name}/archive/%{version}.tar.gz
 BuildArch:  noarch
-Requires:   perl
 Requires:   perl(Carp)
 Requires:   perl(Compress::Raw::Zlib)
 Requires:   perl(Crypt::CBC)
@@ -23,14 +22,10 @@ Requires:   perl(Exporter)
 Requires:   perl(File::Basename)
 Requires:   perl(File::Copy)
 Requires:   perl(FindBin)
-Requires:   perl(Gnome2::GConf)
 Requires:   perl(Gtk2)
 Requires:   perl(Gtk2::AppIndicator)
-Requires:   perl(Gtk2::Ex::Simple::List)
 Requires:   perl(Gtk2::Ex::Simple::TiedCommon)
-Requires:   perl(Gtk2::GladeXML)
 Requires:   perl(Gtk2::SourceView2)
-Requires:   perl(Gtk2::Unique)
 Requires:   perl(IO::Handle)
 Requires:   perl(IO::Stty)
 Requires:   perl(IO::Tty)
@@ -60,13 +55,29 @@ Requires:   perl-X11-GUITest
 Requires:   vte
 Requires:   ftp
 Requires:   telnet
-Requires:   bash
+Requires:   bash-completion
+BuildRequires: perl
 BuildRequires: pkgconfig
-BuildRequires: bash-completion
-BuildRoot:  %{_topdir}/tmp/%{name}-%{version}-%{release}-root
+BuildRequires: bash
+BuildRequires: perl-Gnome2-Vte
+BuildRequires: perl(Gnome2::GConf)
+BuildRequires: perl(Gtk2::Ex::Simple::List)
+BuildRequires: perl(Gtk2::GladeXML)
+BuildRequires: perl(Gtk2::Unique)
 
 %description
-Ásbrú Connection Manager is a user interface that helps organizing remote terminal sessions and automating repetitive tasks.
+Ásbrú Connection Manager is an SSH client that allows users to organize multiple
+remote terminal sessions (SSH, Telnet, etc.) using a single client application,
+thanks to a tabbed interface reminiscent of modern web browsers. Connections can
+be grouped to allow launching multiple connections to related hosts with a
+single command, or even multiplexed, with multiple client sessions being opened
+to the same remote host.
+
+Every aspect of each connection can be managed independently, from environment
+variables to appearance, logging to crontabs. An advanced scripting interface
+extends the functionality even further by simplifying the automation of
+repetitive tasks while a live history panel displays the last 'n' commands sent
+to each host, any of which can be replayed with a single mouse click.
 
 %prep
 %autosetup -n asbru-cm-%{_github_version} -p1
@@ -141,11 +152,11 @@ fi
 
 
 %changelog
-* Mon Apr 19 2019 Ásbrú Project Team <contact@asbru-cm.net> 5.2.0
+* Fri Apr 19 2019 Ásbrú Project Team <contact@asbru-cm.net> 5.2.0-1.fc30
 - 5.2.0 release
-* Mon Jul 23 2018 Ásbrú Project Team <contact@asbru-cm.net> 5.1.0
+* Mon Jul 23 2018 Ásbrú Project Team <contact@asbru-cm.net> 5.1.0-1.fc30
 - 5.1.0 release
-* Fri Dec 29 2017 Asbru Project Team <contact@asbru-cm.net> 5.0.0
-- Final 5.0.0 release
-* Sat Nov 4 2017 Asbru Project Team <contact@asbru-cm.net> 5.0.0
-- Initial packaging of Ásbrú Connection Manager RPM
+* Fri Dec 29 2017 Ásbrú Project Team <contact@asbru-cm.net> 5.0.0-1.fc30
+- Initial Version 5 public release
+* Sat Nov 04 2017 Ásbrú Project Team <contact@asbru-cm.net> 5.0.0-1beta.fc30
+- Initial RPM package for Ásbrú Connection Manager
