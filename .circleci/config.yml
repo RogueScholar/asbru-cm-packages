@@ -25,8 +25,9 @@ jobs:
           command: |
             sudo mv -f ./.circleci/disco-sources.list /etc/apt/sources.list
             sudo apt update
-            sudo apt -y full-upgrade
-            sudo apt -y install gnulib golang-1.11 golang-1.11-race-detector-runtime shellcheck
+            DEBIAN_FRONTEND=noninteractive sudo apt full-upgrade
+            DEBIAN_FRONTEND=noninteractive sudo apt install gnulib golang-1.11 golang-1.11-race-detector-runtime \
+            shellcheck
       - run:
           name: Install shfmt v3
           command: |
@@ -64,12 +65,12 @@ jobs:
           name: Add complete set of Ubuntu repos and install build dependencies
           command: |
             sudo mv -f ./.circleci/disco-sources.list /etc/apt/sources.list
-            sudo apt update && sudo apt -y full-upgrade
-            sudo apt -y install add-apt-key autopkgtest binutils-multiarch dbus-x11 devscripts dh-acc dh-buildinfo \
-            dh-exec dh-make dh-make-perl dh-metainit dh-migrations dh-python dh-runit dh-translations \
-            gconf-defaults-service libdbus-glib-1-dev libextutils-depends-perl libextutils-pkgconfig-perl \
-            libgconf2-dev libglade2-dev libgtk2-perl libunique-dev libvte-dev man-db pkg-perl-autopkgtest pristine-tar \
-            quilt software-properties-common xz-utils
+            sudo apt update && DEBIAN_FRONTEND=noninteractive sudo apt full-upgrade
+            DEBIAN_FRONTEND=noninteractive sudo apt install add-apt-key autopkgtest binutils-multiarch dbus-x11 \
+            devscripts dh-acc dh-buildinfo dh-exec dh-make dh-make-perl dh-metainit dh-migrations dh-python dh-runit \
+            dh-translations gconf-defaults-service libdbus-glib-1-dev libextutils-depends-perl \
+            libextutils-pkgconfig-perl libgconf2-dev libglade2-dev libgtk2-perl libunique-dev libvte-dev man-db \
+            pkg-perl-autopkgtest pristine-tar quilt software-properties-common xz-utils
       - run:
           name: Build libgnome2-gconf-perl
           command: ./libgnome2-gconf-perl/make_debian.sh
@@ -171,19 +172,23 @@ jobs:
           name: Add complete set of Ubuntu repos and install build dependencies
           command: |
             sudo mv -f ./.circleci/disco-sources.list /etc/apt/sources.list
-            sudo apt update && sudo apt -y full-upgrade
-            sudo apt -y install apt-transport-https autopkgtest binutils-multiarch build-essential dbus-user-session \
-            debhelper devscripts dh-acc dh-make dh-make-perl ftp gconf-service gconf-service-backend gconf2-common \
-            gtk2-engines-pixbuf libargon2-1 libcairo-perl libcanberra-gtk-module libcap2 libcrypt-blowfish-perl \
-            libcrypt-cbc-perl libcrypt-rijndael-perl libcryptsetup12 libdbus-glib-1-2 libdevmapper1.02.1 telnet wget \
-            libexpect-perl libgconf-2-4 libglade2-0 libglib-perl libgtk2-perl libip4tc0 libjson-c3 libnet-arp-perl \
-            libnet-proxy-perl libnss-systemd libossp-uuid-perl libpam-systemd libpango-perl libsocket6-perl \
-            libunique-1.0-0 libvte9 libxml-parser-perl libyaml-perl man-db openssh-client quilt systemd systemd-sysv
+            sudo apt update && DEBIAN_FRONTEND=noninteractive sudo apt full-upgrade
+            DEBIAN_FRONTEND=noninteractive sudo apt --allow-downgrades --allow-change-held-packages install \
+            apt-transport-https autopkgtest binutils-multiarch build-essential cbmc cdbs cowbuilder cowdancer \
+            cpants-lint dbus-user-session debhelper devscripts dh-acc dh-make dh-make-perl ftp gconf-service \
+            gconf-service-backend gconf2-common gtk2-engines-pixbuf libargon2-1 libcairo-perl libcanberra-gtk-module \
+            libcap2 libcrypt-blowfish-perl libcrypt-cbc-perl libcrypt-rijndael-perl libcryptsetup12 libdbus-glib-1-2 \
+            libdevmapper1.02.1 libexpect-perl libgconf-2-4 libglade2-0 libglib-perl libgtk2-perl libip4tc0 libjson-c3 \
+            libnet-arp-perl libnet-proxy-perl libnss-systemd libossp-uuid-perl libpam-systemd libpango-perl \
+            libsocket6-perl libunique-1.0-0 libvte9 libxml-parser-perl libyaml-perl man-db openssh-client \
+            perl>=5.28.1 quilt systemd systemd-sysv telnet uuid wget
       - attach_workspace:
           at: /home/circleci/packages
       - run:
           name: Install library dependencies
-          command: find /home/circleci -type f -name 'lib*.deb' | sudo xargs dpkg -i
+          command: >
+            find /home/circleci -type f -name 'lib*.deb' | sudo xargs dpkg -i || DEBIAN_FRONTEND=noninteractive sudo apt
+            --allow-downgrades --allow-change-held-packages --fix-broken install
       - run:
           name: Build asbru-cm Debian package
           command: ./asbru-cm/make_debian.sh
@@ -202,19 +207,23 @@ jobs:
           path: /home/circleci/packages/asbru-cm/tmp/asbru-cm_5.2.0-1~local.debian.tar.xz
   build_asbru_rpm_test_and_save:
     docker:
-      - image: fedora:30
+      - image: fedora:rawhide
     shell: /bin/bash
     working_directory: /home/circleci/packages
     steps:
       - run:
           name: Update dnf and install build dependencies
           command: |
+            dnf -y install \
+            https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm
+            dnf -y install \
+            https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
             dnf -y upgrade
-            dnf -y --best install bash-completion bodhi-client dist-git fedora-packager fedora-review fedpkg findutils \
-            ftp gcc git koji krb5-workstation make mock mock-scm openssh-clients patch perl pkgconfig python \
-            python3-yubico redhat-rpm-config rpm-build rpm-devel rpmdevtools rpmlint shadow-utils sudo telnet tito vte \
-            wget
-            sudo /usr/sbin/usermod -a -G mock circleci
+            dnf -y --best install alternatives bash-completion bodhi-client createrepo dist-git fedora-packager \
+            fedora-review fedpkg findutils ftp gcc git koji make mock mock-scm openssh-clients patch perl \
+            perl-Gnome2-GConf perl-Gnome2-Vte perl-Gtk2-Ex-Simple-List perl-Gtk2-GladeXML perl-Gtk2-Unique pkgconfig \
+            python redhat-rpm-config rpm-build rpm-devel rpmdevtools rpmlint shadow-utils sudo telnet tito util-linux \
+            vte wget
       - checkout
       - run:
           name: Build asbru-cm RPM package
@@ -222,6 +231,9 @@ jobs:
       - store_artifacts:
           path: /home/circleci/packages/asbru-cm/tmp/RPMS/noarch
           destination: rpm-package
+      - store_artifacts:
+          path: /home/circleci/packages/asbru-cm/tmp/SRPMS
+          destination: srpm-package
       - run:
           name: Test package installation results with dnf
           command: |
@@ -240,7 +252,10 @@ jobs:
   test_deb_packages:
     machine:
       image: ubuntu-1604:201903-01
+    shell: /bin/bash
+    working_directory: /home/circleci/packages
     environment:
+      DH_VERBOSE: "1"
       IRC_SERVER: "irc.st-city.net"
     steps:
       - checkout
@@ -248,12 +263,28 @@ jobs:
           name: Add complete set of Ubuntu repos and install testing packages
           command: |
             sudo mv -f ./.circleci/xenial-sources.list /etc/apt/sources.list
-            sudo apt update && sudo apt -y full-upgrade
-            sudo apt install -y --no-install-recommends adequate autopkgtest check-all-the-things gtk2-engines-pixbuf \
-            libcairo-perl libcanberra-gtk-module libcrypt-blowfish-perl libcrypt-cbc-perl libcrypt-rijndael-perl \
-            libexpect-perl libglade2-0 libglib-perl libgtk2-perl libnet-arp-perl libnet-proxy-perl libossp-uuid-perl \
-            libpango-perl libsocket6-perl libunique-1.0-0 libvte9 libyaml-perl lintian pbuilder piuparts \
-            pkg-perl-autopkgtest schroot
+            gpg --recv-keys --keyserver keyserver.ubuntu.com E962FCAB
+            sudo apt-key adv --recv-keys --keyserver keyserver.ubuntu.com E60717F6 E962FCAB
+            curl -L https://packagecloud.io/asbru-cm/asbru-cm/gpgkey | sudo apt-key add -
+            wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | sudo apt-key add -
+            sudo apt update && DEBIAN_FRONTEND=noninteractive sudo apt full-upgrade
+            DEBIAN_FRONTEND=noninteractive sudo apt install --allow-downgrades --allow-change-held-packages \
+            --fix-broken adequate apt-src autopkgtest check-all-the-things cmake debhelper>=11 debootstrap devscripts \
+            dist docbook-xml docbook-xsl doxygen dpkg-dev g++-7 graphviz gtk2-engines-pixbuf libcairo-perl \
+            libcanberra-gtk-module libcrypt-blowfish-perl libcrypt-cbc-perl libcrypt-rijndael-perl libdb-dev \
+            libexpect-perl libgdbm-dev>=1.18 libglade2-0 libglib-perl libgnutls28-dev>=3.4.6 libgtest-dev libgtk2-perl \
+            liblz4-dev>=0.0~r126 libnet-arp-perl libnet-proxy-perl libossp-uuid-perl libpango-perl libseccomp-dev \
+            libsocket6-perl libsystemd-dev libudev-dev libunique-1.0-0 libvte9 libyaml-perl libzstd1-dev lintian \
+            ninja-build pbuilder perl piuparts pkg-perl-autopkgtest po4a>=0.34-2 schroot w3m xsltproc
+      - run:
+          name: Retrieve source packages for essential upgrades, build and install
+          command: |
+            if getent passwd _apt; then sudo adduser _apt circleci; else sudo useradd -MUr _apt && sudo adduser _apt \
+            circleci; fi
+            DEBIAN_FRONTEND=noninteractive apt-src -b install apt=1.8.1~xenialppa1 dpkg=1.19.7~xenialppa1
+            chmod -R 0775 /home/circleci/packages
+            sudo dpkg -D20600 --log=/home/circleci/deb-test-reports/dpkg-install-log.txt -Ri /home/circleci/packages
+            DEBIAN_FRONTEND=noninteractive sudo apt-src install -i perl=5.28.1-6~xenialppa3
       - attach_workspace:
           at: deb
       - run:
@@ -261,12 +292,8 @@ jobs:
           command: |
             mkdir -p /home/circleci/deb-test-reports
             echo -e "Installing our packages with dpkg...\n" | tee /home/circleci/deb-test-reports/dpkg-install-log.txt
-            sudo dpkg -D20700 --log=/home/circleci/deb-test-reports/dpkg-install-log.txt -Ri /home/circleci
-      - run:
-          name: Add packagecloud.io repository for upgrade tests
-          command: |
-            curl -L https://packagecloud.io/asbru-cm/asbru-cm/gpgkey | sudo apt-key add -
-            sudo apt-add-repository -ysu 'deb https://packagecloud.io/asbru-cm/asbru-cm/ubuntu/ xenial main'
+            sudo dpkg -D20600 --log=/home/circleci/deb-test-reports/dpkg-install-log.txt -Ri /home/circleci || \
+            DEBIAN_FRONTEND=noninteractive sudo apt --allow-downgrades --allow-change-held-packages --fix-broken install
       - run:
           name: Test package installation results with adequate
           command: |

@@ -152,11 +152,11 @@ fi
 
 
 %changelog
-* Fri Apr 19 2019 Ásbrú Project Team <contact@asbru-cm.net> 5.2.0-1.fc30
+* Fri Apr 19 2019 Ásbrú Project Team <contact@asbru-cm.net> 5.2.0-1
 - 5.2.0 release
-* Mon Jul 23 2018 Ásbrú Project Team <contact@asbru-cm.net> 5.1.0-1.fc30
+* Mon Jul 23 2018 Ásbrú Project Team <contact@asbru-cm.net> 5.1.0-1
 - 5.1.0 release
-* Fri Dec 29 2017 Ásbrú Project Team <contact@asbru-cm.net> 5.0.0-1.fc30
+* Fri Dec 29 2017 Ásbrú Project Team <contact@asbru-cm.net> 5.0.0-1
 - Initial Version 5 public release
-* Sat Nov 04 2017 Ásbrú Project Team <contact@asbru-cm.net> 5.0.0-1beta.fc30
+* Sat Nov 04 2017 Ásbrú Project Team <contact@asbru-cm.net> 5.0.0-1beta
 - Initial RPM package for Ásbrú Connection Manager

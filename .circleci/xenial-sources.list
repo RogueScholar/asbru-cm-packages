@@ -1,10 +1,16 @@
 deb http://us.archive.ubuntu.com/ubuntu xenial main restricted universe multiverse
-# deb-src http://us.archive.ubuntu.com/ubuntu xenial main restricted universe multiverse
+deb-src http://us.archive.ubuntu.com/ubuntu xenial main restricted universe multiverse
 deb http://us.archive.ubuntu.com/ubuntu xenial-updates main restricted universe multiverse
-# deb-src http://us.archive.ubuntu.com/ubuntu xenial-updates main restricted universe multiverse
+deb-src http://us.archive.ubuntu.com/ubuntu xenial-updates main restricted universe multiverse
 deb http://us.archive.ubuntu.com/ubuntu xenial-backports main restricted universe multiverse
-# deb-src http://us.archive.ubuntu.com/ubuntu xenial-backports main restricted universe multiverse
+deb-src http://us.archive.ubuntu.com/ubuntu xenial-backports main restricted universe multiverse
 deb http://us.archive.ubuntu.com/ubuntu xenial-security main restricted universe multiverse
-# deb-src http://us.archive.ubuntu.com/ubuntu xenial-security main restricted universe multiverse
+deb-src http://us.archive.ubuntu.com/ubuntu xenial-security main restricted universe multiverse
 deb http://us.archive.ubuntu.com/ubuntu xenial-proposed main universe multiverse restricted
-# deb-src http://us.archive.ubuntu.com/ubuntu xenial-proposed main universe multiverse restricted
+deb-src http://us.archive.ubuntu.com/ubuntu xenial-proposed main universe multiverse restricted
+deb http://ppa.launchpad.net/roguescholar/snapshots/ubuntu xenial main
+deb-src http://ppa.launchpad.net/roguescholar/snapshots/ubuntu xenial main
+deb-src http://ppa.launchpad.net/roguescholar/experimental/ubuntu xenial main
+deb https://packagecloud.io/asbru-cm/asbru-cm/ubuntu/ xenial main
+deb-src https://packagecloud.io/asbru-cm/asbru-cm/ubuntu/ xenial main
+deb https://apt.kitware.com/ubuntu/ xenial main
