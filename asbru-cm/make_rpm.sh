@@ -24,6 +24,7 @@ cd "${SCRIPT_DIR}" || exit 1
 # Information about the file paths, build environment and Perl module source
 PACKAGE_NAME="asbru-cm"
 PACKAGE_DIR="${SCRIPT_DIR}/tmp"
+DIST="$(rpm -E %dist)"
 typeset -i RELEASE_COUNT=1
 
 # Find and declare the data transfer agent we'll use
@@ -69,8 +70,8 @@ fi
 # Save the final build status messages to functions
 good_news() {
   echo -e '\t\e[37;42mSUCCESS:\e[0m I have good news!'
-  echo -e "\\t\\t${PACKAGE_NAME}-${PACKAGE_VER}-${RELEASE_COUNT}.${DISTTAG}.noarch.rpm was successfully built in ${PACKAGE_DIR}/RPMS!"
-  echo -e "\\n\\t\\tYou can install it by typing: dnf install ${PACKAGE_DIR}/RPMS/${PACKAGE_NAME}-${PACKAGE_VER}-${RELEASE_COUNT}.${DISTTAG}.noarch.rpm"
+  echo -e "\\t\\t${PACKAGE_NAME}-${PACKAGE_VER}-${RELEASE_COUNT}${DIST}.noarch.rpm was successfully built in ${PACKAGE_DIR}/RPMS!"
+  echo -e "\\n\\t\\tYou can install it by typing: dnf install ${PACKAGE_DIR}/RPMS/${PACKAGE_NAME}-${PACKAGE_VER}-${RELEASE_COUNT}${DIST}.noarch.rpm"
 }
 bad_news() {
   echo -e '\t\e[37;41mERROR:\e[0m I have bad news... :-('
@@ -95,7 +96,7 @@ fi
 # Derive the RPM release and version strings from the latest tagged GitHub release
 RELEASE_RPM=${PACKAGE_VER,,}
 RPM_VERSION=${RELEASE_RPM/-/"~"}
-BUILDLOG="${PACKAGE_DIR}/RPMS/noarch/${PACKAGE_NAME}-${PACKAGE_VER}-${RELEASE_COUNT}.${DISTTAG}.noarch.buildlog"
+BUILDLOG="${PACKAGE_DIR}/RPMS/noarch/${PACKAGE_NAME}-${PACKAGE_VER}-${RELEASE_COUNT}${DIST}.noarch.buildlog"
 
 # Just hand over the tarball and nobody gets hurt, ya see?
 echo "Downloading https://github.com/asbru-cm/asbru-cm/archive/${PACKAGE_VER}.tar.gz..."
@@ -130,11 +131,11 @@ cp "${SCRIPT_DIR}/rpm/asbru-cm.spec" "${PACKAGE_DIR}/SPECS"
 mkdir -p "${PACKAGE_DIR}"/RPMS/noarch && cd "${PACKAGE_DIR}" || exit 1
 
 # Look for a "free" release count
-while [ -f "${PACKAGE_DIR}/RPMS/noarch/${PACKAGE_NAME}-${PACKAGE_VER}-${RELEASE_COUNT}.${DISTTAG}.noarch.rpm" ]; do
+while [ -f "${PACKAGE_DIR}/RPMS/noarch/${PACKAGE_NAME}-${PACKAGE_VER}-${RELEASE_COUNT}${DIST}.noarch.rpm" ]; do
   RELEASE_COUNT+=1
 done
 
-echo -e "\\tBuilding package ${PACKAGE_NAME}-${PACKAGE_VER}-${RELEASE_COUNT}.${DISTTAG}.noarch.rpm, please be patient..."
+echo -e "\\tBuilding package ${PACKAGE_NAME}-${PACKAGE_VER}-${RELEASE_COUNT}${DIST}.noarch.rpm, please be patient..."
 
 if rpmbuild -ba --define "_topdir ${PACKAGE_DIR}" --define "_version ${PACKAGE_VER}" --define "_release ${RELEASE_COUNT}" --define "_github_version ${PACKAGE_VER}" --define "_buildshell /bin/bash" "${PACKAGE_DIR}/SPECS/${PACKAGE_NAME}.spec" >"${BUILDLOG}" 2>&1; then
   good_news

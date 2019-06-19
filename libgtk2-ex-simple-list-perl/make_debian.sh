@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# Ensure we have elevated privileges needed to install build dependencies
+[ "$UID" -eq 0 ] || exec sudo bash "$0" "$@"
+
 # If there is a failure in a pipeline, return the error status of the
 # first failed process rather than the last command in the sequence
 set -o pipefail
@@ -101,6 +104,9 @@ tar -xzf "${PACKAGE_DIR}/${PACKAGE_NAME}_${PACKAGE_VER}.orig.tar.gz" -C "${PACKA
 # make that source+packaging folder the new working directory
 cp -R "${SCRIPT_DIR}"/debian "${PACKAGE_DIR}"/${ORIG_PACKAGE_NAME}
 cd "${PACKAGE_DIR}"/${ORIG_PACKAGE_NAME} || exit 1
+
+# Create and install a dummy package to satisfy the build dependencies, then delete it
+mk-build-deps -ir debian/control
 
 # Append non-destructive "~asbru1" suffix to version number to indicate a local package and
 # replace the generic distribution string "unstable" with the distribution codename of the build system

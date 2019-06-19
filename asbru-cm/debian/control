@@ -20,10 +20,11 @@ Depends: perl, dbus-x11, ftp, gtk2-engines-pixbuf, openssh-client, telnet,
  libnet-proxy-perl, libossp-uuid-perl, libpango-perl, libsocket6-perl, libvte9,
  libx11-guitest-perl, libxml-parser-perl, libyaml-perl, ${perl:Depends},
  ${misc:Depends}
-Description: A remote terminal emulator that organizes multiple remote sessions
- Ásbrú Connection Manager is an remote connection manager that allows users to
- organize multiple remote terminal sessions (SSH, Telnet, Mosh, etc.) using tabs
- within a single application window.
+Description: A remote terminal emulator that manages multiple remote sessions
+ Ásbrú Connection Manager is a remote connection manager/terminal emulator that
+ allows users to organize multiple remote terminal sessions (SSH, Telnet, Mosh,
+ etc.) using a single client application, thanks to a tabbed interface
+ reminiscent of modern web browsers.
  .
  Connections can be grouped to allow launching multiple connections to related
  hosts with a single command, or even multiplexed, with multiple client sessions

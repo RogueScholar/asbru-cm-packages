@@ -1,2 +1,1 @@
-/opt/asbru/asbru-cm /usr/bin/asbru-cm
-/opt/asbru/res/asbru-logo.svg /usr/share/icons/hicolor/scalable/apps/asbru-cm.svg
+usr/share/asbru/res/asbru-logo.svg usr/share/icons/hicolor/scalable/apps/asbru-cm.svg
