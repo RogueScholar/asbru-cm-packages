@@ -145,7 +145,7 @@ sed -i "1s/unstable/$(lsb_release -cs)/" debian/changelog
 ## (A separate invocation style is triggered if the script is run by a CircleCI executor for development testing)
 echo -e "\\tBuilding package ${PACKAGE_NAME}_${DEBIAN_VER}_${PACKAGE_ARCH}.deb, please be patient..."
 
-if [ -n "$CIRCLECI" ]; then
+if [ "$CI" = true ]; then
   if debuild -D -F -sa -us -uc --lintian-opts -EIi --pedantic; then
     good_news
     exit 0

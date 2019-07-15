@@ -1,13 +1,17 @@
 #!/usr/bin/make -f
 
-export DEB_BUILD_MAINT_OPTIONS = future=+lfs hardening=+all reproducible=+fixfilepath
+DH_VERBOSE = 1
+DEB_BUILD_MAINT_OPTIONS = future=+lfs hardening=+all reproducible=+fixfilepath
+LC_ALL := C.UTF-8
+export DH_VERBOSE DEB_BUILD_MAINT_OPTIONS LC_ALL
+
 MAN2POD := perl "-MExtUtils::Command::MM" -e pod2man "--" -u --section=3pm
 DPKG_EXPORT_BUILDFLAGS = 1
-
+include /usr/share/dpkg/default.mk
+include /usr/share/dpkg/pkg-info.mk
 
 %:
 	dh $@
-
 
 override_dh_auto_build:
 	dh_auto_build

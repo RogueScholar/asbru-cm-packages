@@ -1,3 +1,4 @@
+deb file:///home/circleci/debs ./
 deb http://us.archive.ubuntu.com/ubuntu xenial main restricted universe multiverse
 deb-src http://us.archive.ubuntu.com/ubuntu xenial main restricted universe multiverse
 deb http://us.archive.ubuntu.com/ubuntu xenial-updates main restricted universe multiverse
@@ -8,6 +9,12 @@ deb http://us.archive.ubuntu.com/ubuntu xenial-security main restricted universe
 deb-src http://us.archive.ubuntu.com/ubuntu xenial-security main restricted universe multiverse
 deb http://us.archive.ubuntu.com/ubuntu xenial-proposed main universe multiverse restricted
 deb-src http://us.archive.ubuntu.com/ubuntu xenial-proposed main universe multiverse restricted
+deb https://packagecloud.io/asbru-cm/asbru-cm/ubuntu/ xenial main
+deb-src https://packagecloud.io/asbru-cm/asbru-cm/ubuntu/ xenial main
+deb http://ppa.launchpad.net/git-core/ppa/ubuntu xenial main
+deb-src http://ppa.launchpad.net/git-core/ppa/ubuntu xenial main
+deb https://download.docker.com/linux/ubuntu xenial stable
+deb-src https://download.docker.com/linux/ubuntu xenial stable
 deb http://us.archive.ubuntu.com/ubuntu disco main restricted universe multiverse
 deb-src http://us.archive.ubuntu.com/ubuntu disco main restricted universe multiverse
 deb http://us.archive.ubuntu.com/ubuntu disco-updates main restricted universe multiverse
@@ -18,6 +25,9 @@ deb http://us.archive.ubuntu.com/ubuntu disco-security main restricted universe 
 deb-src http://us.archive.ubuntu.com/ubuntu disco-security main restricted universe multiverse
 deb http://us.archive.ubuntu.com/ubuntu disco-proposed main universe multiverse restricted
 deb-src http://us.archive.ubuntu.com/ubuntu disco-proposed main universe multiverse restricted
-deb https://packagecloud.io/asbru-cm/asbru-cm/ubuntu/ xenial main
-deb-src https://packagecloud.io/asbru-cm/asbru-cm/ubuntu/ xenial main
-
+deb https://packagecloud.io/asbru-cm/asbru-cm/ubuntu/ disco main
+deb-src https://packagecloud.io/asbru-cm/asbru-cm/ubuntu/ disco main
+deb http://ppa.launchpad.net/git-core/ppa/ubuntu disco main
+deb-src http://ppa.launchpad.net/git-core/ppa/ubuntu disco main
+deb https://download.docker.com/linux/ubuntu disco stable
+deb-src https://download.docker.com/linux/ubuntu disco stable

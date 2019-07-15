@@ -1,4 +1,4 @@
-libgtk2-gladexml-perl (1.007-3) unstable; urgency=low
+libgtk2-gladexml-perl (1.007-4) unstable; urgency=low
 
   * d/control: Bump debhelper compatibility level to 12
   * d/copyright: Add/Correct missing or dated contact details
@@ -6,12 +6,26 @@ libgtk2-gladexml-perl (1.007-3) unstable; urgency=low
   * d/watch: Update to version 4 and fine-tune regex patterns
   * Set proper minimum versions for Depends and Build-Depends packages
   * Change Maintainer to Ásbrú Project Team and Uploader to Peter J. Mello
-  * Declare compliance with Debian Policy 4.3.0
-  * Update Vcs-Browser and Vcs-Git links to official GNOME GitLab instance
+  * Declare compliance with Debian Policy 4.4.0
   * Add lintian override for debian-watch-does-not-check-gpg-signature
   * Add upstream metadata file for UMEGAYA inclusion
 
- -- Peter J. Mello <admin@petermello.net>  Fri, 07 Jun 2019 19:19:23 -0700
+ -- Peter J. Mello <admin@petermello.net>  Mon, 15 Jul 2019 13:51:15 -0700
+
+libgtk2-gladexml-perl (1.007-3) UNRELEASED; urgency=medium
+
+  [ Salvatore Bonaccorso ]
+  * Update Vcs-Browser URL to cgit web frontend
+  * debian/control: Use HTTPS transport protocol for Vcs-Git URI
+
+  [ gregor herrmann ]
+  * debian/copyright: change Copyright-Format 1.0 URL to HTTPS.
+  * Remove Ryan Niebur from Uploaders. Thanks for your work!
+
+  [ Salvatore Bonaccorso ]
+  * Update Vcs-* headers for switch to salsa.debian.org
+
+ -- Salvatore Bonaccorso <carnil@debian.org>  Sun, 25 Feb 2018 22:10:00 +0200
 
 libgtk2-gladexml-perl (1.007-2) unstable; urgency=low
 
