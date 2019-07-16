@@ -8,11 +8,12 @@ License:    GPLv3+
 URL:        https://asbru-cm.net
 Source0:    https://github.com/%{name}/%{name}/archive/%{version}.tar.gz
 BuildArch:  noarch
+Requires:   perl
 Requires:   perl(Carp)
 Requires:   perl(Compress::Raw::Zlib)
+Requires:   perl(Crypt::Blowfish)
 Requires:   perl(Crypt::CBC)
 Requires:   perl(Crypt::Rijndael)
-Requires:   perl(Crypt::Blowfish)
 Requires:   perl(Data::Dumper)
 Requires:   perl(Digest::SHA)
 Requires:   perl(DynaLoader)
@@ -22,10 +23,14 @@ Requires:   perl(Exporter)
 Requires:   perl(File::Basename)
 Requires:   perl(File::Copy)
 Requires:   perl(FindBin)
+Requires:   perl(Gnome2::GConf)
 Requires:   perl(Gtk2)
 Requires:   perl(Gtk2::AppIndicator)
+Requires:   perl(Gtk2::Ex::Simple::List)
 Requires:   perl(Gtk2::Ex::Simple::TiedCommon)
+Requires:   perl(Gtk2::GladeXML)
 Requires:   perl(Gtk2::SourceView2)
+Requires:   perl(Gtk2::Unique)
 Requires:   perl(IO::Handle)
 Requires:   perl(IO::Stty)
 Requires:   perl(IO::Tty)
@@ -52,18 +57,12 @@ Requires:   perl(vars)
 Requires:   perl(warnings)
 Requires:   perl-Gnome2-Vte
 Requires:   perl-X11-GUITest
-Requires:   vte
+Requires:   bash
+Requires:   bash-completion
 Requires:   ftp
 Requires:   telnet
-Requires:   bash-completion
-BuildRequires: perl
+Requires:   vte
 BuildRequires: pkgconfig
-BuildRequires: bash
-BuildRequires: perl-Gnome2-Vte
-BuildRequires: perl(Gnome2::GConf)
-BuildRequires: perl(Gtk2::Ex::Simple::List)
-BuildRequires: perl(Gtk2::GladeXML)
-BuildRequires: perl(Gtk2::Unique)
 
 %description
 Ásbrú Connection Manager is an SSH client that allows users to organize multiple
@@ -82,20 +81,17 @@ to each host, any of which can be replayed with a single mouse click.
 %prep
 %autosetup -n asbru-cm-%{_github_version} -p1
 sed -ri -e "s|\\\$RealBin[ ]*\.[ ]*'|'%{_datadir}/%{name}/lib|g" lib/pac_conn
-sed -ri -e "s|\\\$RealBin,|'%{_datadir}/%{name}/lib',|g" lib/pac_conn
+sed -ri -e "s|\\\$RealBin,|'%{_datadir}/%{name}',|g" lib/pac_conn
 find . -type f -exec sed -i \
   -e "s|\$RealBin[ ]*\.[ ]*'|'%{_datadir}/%{name}|g" \
   -e 's|"\$RealBin/|"%{_datadir}/%{name}/|g' \
   -e 's|/\.\.\(/\)|\1|' \
   '{}' \+
 
-
 %build
-
 
 %check
 desktop-file-validate res/asbru-cm.desktop
-
 
 %install
 rm -rf %{buildroot}
@@ -124,7 +120,6 @@ cp -a res/asbru-logo.svg %{buildroot}/%{_datadir}/icons/hicolor/scalable/apps/%{
 cp -a res/*.{png,jpg,pl,glade} res/termcap %{buildroot}/%{_datadir}/%{name}/res/
 cp -a lib/* %{buildroot}/%{_datadir}/%{name}/lib/
 
-
 %files
 %doc README.md
 %license LICENSE
@@ -135,10 +130,8 @@ cp -a lib/* %{buildroot}/%{_datadir}/%{name}/lib/
 %{_bashcompletiondir}/%{name}*
 %{_bindir}/%{name}*
 
-
 %post
 /bin/touch --no-create %{_datadir}/icons/hicolor &>/dev/null || :
-
 
 %postun
 if [ $1 -eq 0 ] ; then
@@ -146,10 +139,8 @@ if [ $1 -eq 0 ] ; then
     /usr/bin/gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null || :
 fi
 
-
 %posttrans
 /usr/bin/gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null || :
-
 
 %changelog
 * Fri Apr 19 2019 Ásbrú Project Team <contact@asbru-cm.net> 5.2.0-1

@@ -1,8 +1,5 @@
 #!/usr/bin/env bash
 
-# Ensure we have elevated privileges needed to install build dependencies
-[ "$UID" -eq 0 ] || exec sudo bash "$0" "$@"
-
 # If there is a failure in a pipeline, return the error status of the
 # first failed process rather than the last command in the sequence
 set -o pipefail
@@ -10,6 +7,10 @@ set -o pipefail
 # Explicitly set IFS to only newline and tab characters, eliminating errors
 # caused by absolute paths where directory names contain spaces, etc.
 IFS="$(printf '\n\t')"
+
+# Ensure we have elevated privileges needed to install build dependencies
+[ "$UID" -eq 0 ] || echo -e '\t\e[30;103mALERT:\e[0m Elevated privileges are required to install build dependencies.
+\t\tEnter sudo password to continue.\n' && exec sudo bash "$0"
 
 # Print ASCII art with ANSI colors to brand the process
 base64 -d <<<"H4sIAEfB+lwAA12PsQ4CIQyGZ3kFlm7GRA8N0cHV2SeA5M95uagDnLnD7R7eFk
@@ -31,7 +32,19 @@ PACKAGE_ARCH="all"
 DEBIAN_VER="$(grep -P -m 1 -o '\d*\.\d*-\d*' debian/changelog)~local"
 BUILD_ARCH="$(dpkg --print-architecture)"
 
-# Save the final build status messages to functions
+# Save the final build progress indicator and status messages to functions
+spinner() {
+  typeset delay=0.75
+  typeset spinstr='\|/-'
+  while "$*"; do
+    typeset temp=${spinstr#?}
+    printf " [%c]  " "$spinstr"
+    typeset spinstr=$temp${spinstr%"$temp"}
+    sleep $delay
+    printf "\\b\\b\\b\\b\\b\\b"
+  done
+  printf "    \\b\\b\\b\\b"
+}
 good_news() {
   echo -e '\t\e[37;42mSUCCESS:\e[0m I have good news!'
   echo -e "\\t\\t${PACKAGE_NAME}_${DEBIAN_VER}_${PACKAGE_ARCH}.deb was successfully built in ${PACKAGE_DIR}!"
@@ -154,7 +167,7 @@ if [ "$CI" = true ]; then
     exit 1
   fi
 else
-  if debuild -b -us -uc; then
+  if spinner debuild -b -us -uc; then
     good_news
     exit 0
   else
