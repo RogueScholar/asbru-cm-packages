@@ -41,9 +41,9 @@ spinner() {
     printf " [%c]  " "$spinstr"
     typeset spinstr=$temp${spinstr%"$temp"}
     sleep $delay
-    printf "\\b\\b\\b\\b\\b\\b"
+    printf '\b\b\b\b\b\b'
   done
-  printf "    \\b\\b\\b\\b"
+  printf '    \b\b\b\b'
 }
 good_news() {
   echo -e '\t\e[37;42mSUCCESS:\e[0m I have good news!'
