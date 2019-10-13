@@ -2,12 +2,10 @@
 
 DEB_BUILD_MAINT_OPTIONS = future=+lfs hardening=+all reproducible=+fixfilepath
 DH_VERBOSE = 1
-LC_ALL := C.UTF-8
-export DEB_BUILD_MAINT_OPTIONS DH_VERBOSE LC_ALL
+export DEB_BUILD_MAINT_OPTIONS DH_VERBOSE
 
 DPKG_EXPORT_BUILDFLAGS = 1
 include /usr/share/dpkg/default.mk
-include /usr/share/dpkg/pkg-info.mk
 
 
 %:
