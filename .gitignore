@@ -1,29 +1,16 @@
-# All but four Visual Studio Code files are installation-specific
-.vscode/*
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
+# CudaText (project files are user-specific)
+*.cuda-proj
 
-# Kate swap Files
+# Kate (ignore swap files for open files)
 .*.kate-swp
 .swp.*
 
-# CudaText project files are user-specific
-*.cuda-proj
-
-# Cache files for Sublime Text
+# Sublime Text 2/3
+## Cache files
 *.tmlanguage.cache
 *.tmPreferences.cache
 *.stTheme.cache
-
-# Sublime Text workspace files are user-specific
-*.sublime-workspace
-
-# Sublime Text SFTP configuration/credentials file
-sftp-config.json
-
-# Sublime Text package control specific files
+## Package Control-specific files
 Package Control.last-run
 Package Control.ca-list
 Package Control.ca-bundle
@@ -34,20 +21,25 @@ Package Control.merged-ca-bundle
 Package Control.user-ca-bundle
 oscrypto-ca-bundle.crt
 bh_unicode_properties.cache
-
-# Sublime-github package stores a github token in this file
+## SFTP configuration/credentials file
+sftp-config.json
+## Sublime-github package stores your token in plain text here
 GitHub.sublime-settings
+## Workspace files are user-specific
+*.sublime-workspace
 
-# Don't accidentally publish your GPG secret keyring
+# Visual Studio Code (all but four files are installation-specific)
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# Don't ever accidentally publish your GPG secret keyring!!
 secring.*
 
 # Project specific files
 asbru-cm/tmp
-libgnome2-gconf-perl/tmp
-libgnome2-vte-perl/tmp
-libgtk2-ex-simple-list-perl/tmp
-libgtk2-gladexml-perl/tmp
-libgtk2-unique-perl/tmp
 */debian/.debhelper
 */debian/*.debhelper.log
 */debian/debhelper-build-stamp

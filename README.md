@@ -10,6 +10,26 @@
 
 This repository contains packaging files and helper scripts to build the dependencies required to run and the installation packages for [Ásbrú Connection Manager](https://asbru-cm.net).
 
+## Building packages
+
+### Debian / Ubuntu / Mint (.deb)
+
+1. Make sure you have the necessary dependencies installed
+    - `debuild`
+    - `curl` or `wget`
+1. Clone this repository somewhere you like and `cd` into it
+1. Run `sudo ./make_debian.sh` (elevated privileges are needed because the script automatically installs any missing build dependencies and then uninstalls them once the package is built)
+1. The packages will all be created under `./debian/tmp/`, you can copy/install them from there then delete the tmp folder afterwards.
+
+### Centos / Fedora / OpenSUSE (.rpm)
+
+1. Make sure you have the necessary dependencies installed
+    - rpm-build
+    - `curl` or `wget`
+1. Clone this repository somewhere you like and `cd` into it
+1. Run ./make_rpm.sh
+1. The packages will all be created under `./rpm/RPMS/noarch/`, you can copy/install them from there then delete the tmp folder afterwards.
+
 ## Contributing
 
 If you want to contribute to Ásbrú Connection Manager, first check out the [issues](https://github.com/asbru-cm/asbru-cm/issues) and see if your request is not listed yet.  Issues and pull requests will be triaged and responded to as quickly as possible.
