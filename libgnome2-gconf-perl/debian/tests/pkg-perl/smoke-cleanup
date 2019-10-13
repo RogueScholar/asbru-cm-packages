@@ -1,6 +1,0 @@
-#!/bin/sh
-
-cd $TDIR
-
-kill $(cat pid.tmp)
-rm -f pid.tmp

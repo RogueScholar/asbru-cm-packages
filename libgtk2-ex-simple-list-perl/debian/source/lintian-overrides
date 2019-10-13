@@ -1,4 +1,0 @@
-# No GPG signatures published by upstream at MetaCPAN
-libgtk2-ex-simple-list-perl source: debian-watch-does-not-check-gpg-signature
-# SourceForge CVS repositories are deprecated, only anonymous HTTP access remains
-libgtk2-ex-simple-list-perl source: vcs-field-uses-insecure-uri

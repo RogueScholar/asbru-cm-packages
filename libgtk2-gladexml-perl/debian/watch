@@ -1,3 +1,0 @@
-version=4
-opts=dversionmangle=s/\+dfsg$//,repacksuffix=+dfsg \
-https://metacpan.org/release/Gtk2-GladeXML    .*/Gtk2-GladeXML-v?(\d[\d.-]+)\.(?:tar(?:\.gz|\.bz2)?|tgz|zip)$
