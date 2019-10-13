@@ -1,6 +1,6 @@
-asbru-cm (5.9.0-0+alpha) unstable; urgency=medium
+asbru-cm (6.0.0-0beta1) unstable; urgency=medium
 
-  * New upstream release: refactor codebase to run on GTK3 framework.
+  * New upstream beta release: refactor codebase to run on GTK3 framework.
 
  -- Ásbrú Project Team <contact@asbru-cm.net>  Fri, 04 Oct 2019 15:10:09 -0700
 
