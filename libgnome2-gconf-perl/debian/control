@@ -2,12 +2,13 @@ Source: libgnome2-gconf-perl
 Section: perl
 Priority: optional
 Maintainer: Ásbrú Project Team <contact@asbru-cm.net>
-Uploaders: Peter J. Mello <admin@petermello.net>
-Build-Depends: debhelper-compat (= 12), perl (>= 5.8.0), dbus (>= 1.8),
- dbus-x11 (>= 1.1.1), libdbus-glib-1-dev (>= 0.74), libgconf2-dev (>= 2.1.90),
- libglib-perl (>= 1:1.120), libextutils-depends-perl (>= 0.201),
- libextutils-pkgconfig-perl (>= 1.03)
-Standards-Version: 4.3.0
+Uploaders: Gaëtan Frenoy <gaetan@frenoy.net>,
+ Klaas Tammling <klaas@tammling.hamburg>, Peter J. Mello <admin@petermello.net>
+Build-Depends: debhelper-compat (= 12), perl (>= 5.8.0), perl-doc (>= 5.8.0),
+ dbus (>= 1.8), dbus-x11 (>= 1.1.1), libdbus-glib-1-dev (>= 0.74),
+ libgconf2-dev (>= 2.1.90), libglib-perl (>= 1:1.120),
+ libextutils-depends-perl (>= 0.201), libextutils-pkgconfig-perl (>= 1.03)
+Standards-Version: 4.4.1
 Homepage: http://gtk2-perl.sourceforge.net/
 Vcs-Browser: https://gitlab.gnome.org/GNOME/perl-gnome2-gconf
 Vcs-Git: https://gitlab.gnome.org/GNOME/perl-gnome2-gconf.git

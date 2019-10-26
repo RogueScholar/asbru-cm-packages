@@ -1,25 +1,28 @@
 #!/usr/bin/make -f
 
-DH_VERBOSE = 1
 DEB_BUILD_MAINT_OPTIONS = future=+lfs hardening=+all reproducible=+fixfilepath
+DEB_BUILD_OPTIONS = nostrip
+DH_VERBOSE = 1
 LC_ALL := C.UTF-8
-export DH_VERBOSE DEB_BUILD_MAINT_OPTIONS LC_ALL
+export DEB_BUILD_MAINT_OPTIONS DEB_BUILD_OPTIONS DH_VERBOSE LC_ALL
+
+DPKG_EXPORT_BUILDFLAGS = 1
+include /usr/share/dpkg/default.mk
 
 PERL ?= /usr/bin/perl
 VER := $(shell grep -P -m 1 -o '\d*\.\d*-\d*' debian/changelog)
 POD2MAN := $(PERL) "-MExtUtils::Command::MM" -e pod2man "--" -u -r $(VER) --section=3pm
 POD2MANSOURCES := $(wildcard blib/lib/Gnome2/GConf/*.pod)
-DPKG_EXPORT_BUILDFLAGS = 1
-include /usr/share/dpkg/default.mk
-include /usr/share/dpkg/pkg-info.mk
+
 
 %:
 	dh $@
 
 override_dh_auto_build:
 	dh_auto_build -- LD_RUN_PATH=""
-	set -e; for POD in $(POD2MANSOURCES); do BASENAME=$$(basename "$$POD" .pod); \
-	$(POD2MAN) -n "$$BASENAME" "$$POD" > "blib/man3/$$BASENAME".3pm; done
+	set -e; for man in $(POD2MANSOURCES); \
+	    do BASENAME=$$(basename "$$man" .pod); \
+	    $(POD2MAN) -n "$$BASENAME" "$$man" > "blib/man3/$$BASENAME".3pm; done
 	$(POD2MAN) -n Gnome2::GConf GConf.pm > blib/man3/Gnome2::GConf.3pm
 	chmod 0644 blib/man3/Gnome2::GConf*
 
