@@ -1,18 +1,20 @@
 libgnome2-gconf-perl (1.044-7) unstable; urgency=medium
 
+  [ Peter J. Mello ]
+  * d/control: Add autopkgtest-pkg-perl test suite
+  * d/control: Add Peter J. Mello to Uploaders
   * d/control: Bump debhelper compatibility level to 12
+  * d/control: Change Maintainer to Ásbrú Project Team
+  * d/control: Declare compliance with Debian Policy 4.4.0
+  * d/control: Insert proper Build-Depends package versions
+  * d/control: Update Vcs-Browser and Vcs-Git links to official GNOME GitLab instance
   * d/patches: Patch source code errors where RETVAL was called with no output
   * d/rules: Added future=+lfs hardening=+all reproducible=+fixfilepath flags
-    Call pod2man again after auto-build to write correct section to man pages
+  * d/rules: Call pod2man again after auto-build to write correct section to man pages
+  * d/source: Add lintian override for debian-watch-does-not-check-gpg-signature
+  * d/source: Add local options directive to clean source tree patches after build
+  * d/upstream: Add metadata file for UMEGAYA inclusion
   * d/watch: Update to version 4 and adjust regex for new GitLab repository
-  * Change Maintainer to Ásbrú Project Team and Uploader to Peter J. Mello
-  * Insert proper Build-Depends package versions
-  * Declare compliance with Debian Policy 4.3.0
-  * Update Vcs-Browser and Vcs-Git links to official GNOME GitLab instance
-  * Add autopkgtest-pkg-perl test suite
-  * Add lintian override for debian-watch-does-not-check-gpg-signature
-  * Add local options directive to clean source tree patches after build
-  * Add upstream metadata file for UMEGAYA inclusion
 
  -- Peter J. Mello <admin@petermello.net>  Tue, 21 May 2019 15:33:03 -0700
 

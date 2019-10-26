@@ -10,7 +10,7 @@ DPKG_EXPORT_BUILDFLAGS = 1
 include /usr/share/dpkg/default.mk
 
 PERL ?= /usr/bin/perl
-VER := $(shell grep -P -m 1 -o '\d*\.\d*-\d*' debian/changelog)
+VER := $(DEB_VERSION_UPSTREAM)
 POD2MAN := $(PERL) "-MExtUtils::Command::MM" -e pod2man "--" -u -r $(VER) --section=3pm
 POD2MANSOURCES := $(wildcard blib/lib/Gnome2/GConf/*.pod)
 

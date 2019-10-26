@@ -17,9 +17,11 @@ Rules-Requires-Root: binary-targets
 
 Package: libgnome2-gconf-perl
 Architecture: any
-Depends: dbus (>= 1.8), gconf-service (>= 2.20.0), libdbus-glib-1-2 (>= 0.74),
- libglib-perl (>= 1:1.120), libgconf-2-4 (>= 2.20.0) | libgconf2-4 (>= 2.20.0),
- ${perl:Depends}, ${shlibs:Depends}, ${misc:Depends}
+Depends: libglib-perl (>= 1:1.120), ${perl:Depends}, ${shlibs:Depends},
+ ${misc:Depends}
+Recommends: dbus-x11 (>= 1.1.1), libdbus-glib-1-2 (>= 0.74)
+Suggests: gconf-service (>= 2.20.0),
+ libgconf-2-4 (>= 2.20.0) | libgconf2-4 (>= 2.20.0)
 Homepage: https://metacpan.org/release/Gnome2-GConf
 Description: Perl interface to the GNOME GConf library
  This module is part of Gtk2-Perl. Gnome2::GConf allows a Perl developer to use
