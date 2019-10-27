@@ -1,23 +1,27 @@
 #!/usr/bin/make -f
 
-DH_VERBOSE = 1
 DEB_BUILD_MAINT_OPTIONS = future=+lfs hardening=+all reproducible=+fixfilepath
+DEB_BUILD_OPTIONS = nostrip
+DH_VERBOSE = 1
 LC_ALL := C.UTF-8
-export DH_VERBOSE DEB_BUILD_MAINT_OPTIONS LC_ALL
+export DEB_BUILD_MAINT_OPTIONS DEB_BUILD_OPTIONS DH_VERBOSE LC_ALL
 
-MAN2POD := perl "-MExtUtils::Command::MM" -e pod2man "--" -u --section=3pm
 DPKG_EXPORT_BUILDFLAGS = 1
 include /usr/share/dpkg/default.mk
-include /usr/share/dpkg/pkg-info.mk
+
+PERL ?= /usr/bin/perl
+VER := $(DEB_VERSION_UPSTREAM)
+POD2MAN := $(PERL) "-MExtUtils::Command::MM" -e pod2man "--" -u -r $(VER) --section=3pm
+POD2MANSOURCES := $(wildcard blib/lib/Gnome2/Vte/*.pod)
+
 
 %:
 	dh $@
 
 override_dh_auto_build:
-	dh_auto_build
-	$(MAN2POD) blib/lib/Gnome2/Vte/index.pod blib/man3/Gnome2::Vte::index.3pm
-	$(MAN2POD) blib/lib/Gnome2/Vte/Terminal.pod blib/man3/Gnome2::Vte::Terminal.3pm
-	$(MAN2POD) blib/lib/Gnome2/Vte/main.pod blib/man3/Gnome2::Vte::main.3pm
-	perl "-MExtUtils::Command::MM" -e pod2man "--" -u --name=Gnome2::Vte --section=3pm \
-		Vte.pm blib/man3/Gnome2::Vte.3pm
+	dh_auto_build -- LD_RUN_PATH=""
+	set -e; for man in $(POD2MANSOURCES); \
+	    do BASENAME=$$(basename "$$man" .pod); \
+	    $(POD2MAN) -n "$$BASENAME" "$$man" >"blib/man3/$$BASENAME".3pm; done
+	$(POD2MAN) -n Gnome2::Vte Vte.pm >blib/man3/Gnome2::Vte.3pm
 	chmod 0644 blib/man3/Gnome2::Vte*

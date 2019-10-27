@@ -1,5 +1,14 @@
+libgnome2-vte-perl (0.11-3) unstable; urgency=low
+
+  [ Peter J. Mello ]
+  * Merge patches into source tree now maintained on Launchpad
+  * d/rules: Explicitly set LC_ALL=C.UTF-8 to correct build reproducibility
+
+ -- Ásbrú Project Team <contact@asbru-cm.net>  Fri, 12 Jul 2019 18:02:51 -0700
+
 libgnome2-vte-perl (0.11-2) unstable; urgency=low
 
+  [ Peter J. Mello ]
   * Source unchanged; update package metadata and build scripts to current specs
   * Change package maintainer to Ásbrú Project Team
 
