@@ -52,7 +52,7 @@ jobs:
       - store_artifacts:
           path: /home/circleci/script-test-reports
           destination: script-tests
-  build_deb_packages:
+  build_dependency_deb_packages:
     executor: ubuntu-eoan
     steps:
       - run:
@@ -134,6 +134,9 @@ jobs:
       - store_artifacts:
           path: /home/circleci/artifacts/libgtk2-unique-perl
           destination: libgtk2-unique-perl
+  build_asbru_deb_package:
+    executor: ubuntu-eoan
+    steps:
       - run:
           name: Install built library packages
           command: >
@@ -153,7 +156,7 @@ jobs:
           destination: deb-package
   build_and_test_rpm_packages:
     docker:
-      - image: fedora:rawhide
+      - image: fedora:31
     shell: /bin/bash
     working_directory: /home/circleci/packages
     steps:
@@ -260,9 +263,16 @@ workflows:
               only:
                 - master
                 - gtk3
-      - build_deb_packages:
+      - build_dependency_deb_packages:
           requires:
             - test_build_scripts
+          filters:
+            branches:
+              only: master
+      - build_asbru_deb_package:
+          requires:
+            - test_build_scripts
+            - build_dependency_deb_packages
           filters:
             branches:
               only:
@@ -278,7 +288,8 @@ workflows:
                 - gtk3
       - test_deb_packages:
           requires:
-            - build_deb_packages
+            - build_dependency_deb_packages
+            - build_asbru_deb_package
           filters:
             branches:
               only:
