@@ -2,9 +2,9 @@
 # yamllint disable rule:key-ordering rule:quoted-strings
 version: 2.1
 executors:
-  ubuntu-disco:
+  ubuntu-eoan:
     docker:
-      - image: circleci/buildpack-deps:disco
+      - image: circleci/buildpack-deps:eoan
     shell: /bin/bash
     working_directory: /home/circleci/packages
     environment:
@@ -52,7 +52,7 @@ jobs:
           path: /home/circleci/script-test-reports
           destination: script-tests
   build_deb_packages:
-    executor: ubuntu-disco
+    executor: ubuntu-eoan
     steps:
       - run:
           name: Use 'unminimize' script to "rehydrate" Docker image
@@ -61,7 +61,7 @@ jobs:
       - run:
           name: Add all Ubuntu repos and install build packages
           command: |
-            sudo mv -f ./.circleci/disco-sources.list /etc/apt/sources.list
+            sudo mv -f ./.circleci/eoan-sources.list /etc/apt/sources.list
             sudo apt update && sudo apt full-upgrade
             sudo apt install adequate autopkgtest build-essential dbus-user-session dbus-x11 debhelper devscripts \
             dh-acc dh-autoreconf dh-buildinfo dh-exec dh-make dh-make-perl dh-strip-nondeterminism dpkg-dev equivs ftp \
@@ -73,7 +73,7 @@ jobs:
           command: |
             sudo CI=true /home/circleci/packages/libgnome2-gconf-perl/make_debian.sh
             mkdir -p /home/circleci/artifacts/libgnome2-gconf-perl
-            cp /home/circleci/packages/libgnome2-gconf-perl/tmp/*.{deb,ddeb,dsc,changes,buildinfo,gz,xz} \
+            cp /home/circleci/packages/libgnome2-gconf-perl/tmp/*.{deb,dsc,changes,buildinfo,gz,xz} \
             /home/circleci/artifacts/libgnome2-gconf-perl
       - persist_to_workspace:
           root: /home/circleci/packages/libgnome2-gconf-perl/tmp
@@ -86,7 +86,7 @@ jobs:
           command: |
             sudo CI=true /home/circleci/packages/libgnome2-vte-perl/make_debian.sh
             mkdir -p /home/circleci/artifacts/libgnome2-vte-perl
-            cp /home/circleci/packages/libgnome2-vte-perl/tmp/*.{deb,ddeb,dsc,changes,buildinfo,gz,xz} \
+            cp /home/circleci/packages/libgnome2-vte-perl/tmp/*.{deb,dsc,changes,buildinfo,gz,xz} \
             /home/circleci/artifacts/libgnome2-vte-perl
       - persist_to_workspace:
           root: /home/circleci/packages/libgnome2-vte-perl/tmp
@@ -112,7 +112,7 @@ jobs:
           command: |
             sudo CI=true /home/circleci/packages/libgtk2-gladexml-perl/make_debian.sh
             mkdir -p /home/circleci/artifacts/libgtk2-gladexml-perl
-            cp /home/circleci/packages/libgtk2-gladexml-perl/tmp/*.{deb,ddeb,dsc,changes,buildinfo,gz,xz} \
+            cp /home/circleci/packages/libgtk2-gladexml-perl/tmp/*.{deb,dsc,changes,buildinfo,gz,xz} \
             /home/circleci/artifacts/libgtk2-gladexml-perl
       - persist_to_workspace:
           root: /home/circleci/packages/libgtk2-gladexml-perl/tmp
@@ -125,7 +125,7 @@ jobs:
           command: |
             sudo CI=true /home/circleci/packages/libgtk2-unique-perl/make_debian.sh
             mkdir -p /home/circleci/artifacts/libgtk2-unique-perl
-            cp /home/circleci/packages/libgtk2-unique-perl/tmp/*.{deb,ddeb,dsc,changes,buildinfo,gz,xz} \
+            cp /home/circleci/packages/libgtk2-unique-perl/tmp/*.{deb,dsc,changes,buildinfo,gz,xz} \
             /home/circleci/artifacts/libgtk2-unique-perl
       - persist_to_workspace:
           root: /home/circleci/packages/libgtk2-unique-perl/tmp
@@ -239,9 +239,9 @@ jobs:
           name: Test package installation results with piuparts
           command: >
             mkdir -p /home/circleci/piuparts; touch /home/circleci/deb-test-reports/piuparts.txt; find /home/circleci
-            -type f -name '*.deb' -print0 | sudo xargs -0t -- piuparts -b "$CHROOT" -D ubuntu -d disco --warn-on-others
+            -type f -name '*.deb' -print0 | sudo xargs -0t -- piuparts -b "$CHROOT" -D ubuntu -d eoan --warn-on-others
             --upgrade-before-dist-upgrade --single-changes-list --warn-on-leftovers-after-purge -N -i /etc/resolv.conf
-            --extra-repo='deb [trusted=yes] http://ppa.launchpad.net/asbru-cm/releases/ubuntu disco main' -s "$CHROOT"
+            --extra-repo='deb [trusted=yes] http://ppa.launchpad.net/asbru-cm/releases/ubuntu eoan main' -s "$CHROOT"
             -l /home/circleci/deb-test-reports/piuparts.txt
       - save_cache:
           key: asbru-cache-v1-{{ checksum "asbru-cm/debian/changelog" }}
@@ -256,23 +256,31 @@ workflows:
       - test_build_scripts:
           filters:
             branches:
-              only: master
+              only:
+                - master
+                - gtk3
       - build_deb_packages:
           requires:
             - test_build_scripts
           filters:
             branches:
-              only: master
+              only:
+                - master
+                - gtk3
       - build_and_test_rpm_packages:
           requires:
             - test_build_scripts
           filters:
             branches:
-              only: master
+              only:
+                - master
+                - gtk3
       - test_deb_packages:
           requires:
             - build_deb_packages
           filters:
             branches:
-              only: master
+              only:
+                - master
+                - gtk3
 ...
