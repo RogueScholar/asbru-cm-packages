@@ -71,7 +71,7 @@ echo "Reading the response to https://github.com/asbru-cm/asbru-cm/releases/late
 case $TRANSFER_AGENT in
   curl)
     RESPONSE=$(curl -sL -w 'HTTPSTATUS:%{http_code}' -H 'Accept: application/json' \
-    "https://github.com/asbru-cm/asbru-cm/releases/latest")
+      "https://github.com/asbru-cm/asbru-cm/releases/latest")
     PACKAGE_VER=$(echo "${RESPONSE}" | sed -e 's/HTTPSTATUS\:.*//g' | tr -s '\n' ' ' | sed 's/.*"tag_name":"//' | sed 's/".*//')
     HTTP_CODE=$(echo "${RESPONSE}" | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')
     ;;

@@ -201,8 +201,8 @@ jobs:
           command: |
             mkdir -p /home/circleci/rpm-test-reports
             echo -e "Testing package install with dnf...\n" | tee /home/circleci/rpm-test-reports/dnf-install.txt
-            find /home/circleci -type f -name 'asbru-cm*.noarch.rpm' | xargs dnf -yv --allowerasing install 2>&1 | \
-            tee -a /home/circleci/rpm-test-reports/dnf-install.txt
+            find /home/circleci -type f -name 'asbru-cm*.noarch.rpm' | xargs dnf -yv --allowerasing --skip-broken \
+            install 2>&1 | tee -a /home/circleci/rpm-test-reports/dnf-install.txt
       - run:
           name: Test package standards compliance with rpmlint
           command: |
@@ -234,8 +234,8 @@ jobs:
             sudo apt install adequate dbus-user-session dbus-x11 devscripts distro-info-data eatmydata fakeroot \
             gconf-service gconf2-common gtk2-engines-pixbuf libcairo-perl libcanberra-gtk-module \
             libcrypt-blowfish-perl libcrypt-cbc-perl libcrypt-rijndael-perl libexpect-perl libgtk2-perl \
-            libnet-arp-perl libnet-proxy-perl libossp-uuid-perl libpango-perl libsocket6-perl libvte9 lintian \
-            local-apt-repository pbuilder piuparts
+            libnet-arp-perl libnet-proxy-perl libossp-uuid-perl libpango-perl libsocket6-perl libvte9 \
+            libx11-guitest-perl libyaml-perl lintian local-apt-repository pbuilder piuparts
       - run:
           name: Pre-install built package dependencies
           command: |
