@@ -239,8 +239,9 @@ jobs:
       - run:
           name: Pre-install built package dependencies
           command: |
-            sudo cp /home/circleci/debs/*.deb "$LOCAL_REPO" && sudo /usr/lib/local-apt-repository/rebuild
-            sudo apt update && sudo apt -y install libgnome2-gconf-perl libgnome2-vte-perl libgtk2-ex-simple-list-perl \
+            sudo cp /home/circleci/debs/*.deb "$LOCAL_REPO"
+            sudo /usr/lib/local-apt-repository/rebuild && sudo apt update
+            sudo apt -y install libgnome2-gconf-perl libgnome2-vte-perl libgtk2-ex-simple-list-perl \
             libgtk2-gladexml-perl libgtk2-unique-perl
       - run:
           name: Install freshly built packages with dpkg debug logging
