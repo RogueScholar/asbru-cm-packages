@@ -8,6 +8,7 @@ executors:
     shell: /bin/bash
     working_directory: /home/circleci/packages
     environment:
+      DEB_BUILD_OPTIONS: "nostrip"
       DEBIAN_FRONTEND: "noninteractive"
       DH_VERBOSE: "1"
 jobs:
