@@ -51,12 +51,9 @@ bad_news() {
   return 1
 }
 
-# Delete the build directory if it exists from earlier attempts then create it anew and empty
-if [ -d "${PACKAGE_DIR}" ]; then
-  { rm -rf "${PACKAGE_DIR}"; mkdir -p "${PACKAGE_DIR}" }
-else
-  mkdir -p "${PACKAGE_DIR}"
-fi
+# Delete the build directory if it exists from earlier attempts then create it anew (empty)
+test -d "${PACKAGE_DIR}" && rm -rf "${PACKAGE_DIR}"
+mkdir -p "${PACKAGE_DIR}"
 
 # Find and declare the data transfer agent we'll use
 if command -v curl &>/dev/null; then
