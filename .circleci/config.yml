@@ -52,7 +52,7 @@ jobs:
       - store_artifacts:
           path: /home/circleci/script-test-reports
           destination: script-tests
-  build_dependency_deb_packages:
+  build_deb_packages:
     executor: ubuntu-eoan
     steps:
       - run:
@@ -64,10 +64,11 @@ jobs:
           command: |
             sudo mv -f ./.circleci/eoan-sources.list /etc/apt/sources.list
             sudo apt update && sudo apt full-upgrade
-            sudo apt install autopkgtest build-essential dbus-user-session dbus-x11 debhelper devscripts dh-autoreconf \
-            dh-buildinfo dh-exec dh-make dh-make-perl dh-strip-nondeterminism dpkg-dev equivs ftp gtk2-engines-pixbuf \
-            libcanberra-gtk-module libcrypt-blowfish-perl libcrypt-cbc-perl libcrypt-rijndael-perl libexpect-perl \
-            libnet-arp-perl libnet-proxy-perl libossp-uuid-perl libsocket6-perl man-db pkg-perl-autopkgtest quilt telnet
+            sudo apt install adequate autopkgtest build-essential dbus-user-session dbus-x11 debhelper devscripts \
+            dh-acc dh-autoreconf dh-buildinfo dh-exec dh-make dh-make-perl dh-strip-nondeterminism dpkg-dev equivs ftp \
+            gtk2-engines-pixbuf libcanberra-gtk-module libcrypt-blowfish-perl libcrypt-cbc-perl libcrypt-rijndael-perl \
+            libexpect-perl libnet-arp-perl libnet-proxy-perl libossp-uuid-perl libsocket6-perl man-db \
+            pkg-perl-autopkgtest quilt telnet
       - run:
           name: Build libgnome2-gconf-perl
           command: |
@@ -133,22 +134,6 @@ jobs:
       - store_artifacts:
           path: /home/circleci/artifacts/libgtk2-unique-perl
           destination: libgtk2-unique-perl
-  build_asbru_deb_package:
-    executor: ubuntu-eoan
-    steps:
-      - run:
-          name: Use 'unminimize' script to "rehydrate" Docker image
-          command: yes | sudo unminimize
-      - checkout
-      - run:
-          name: Add all Ubuntu repos and install build packages
-          command: |
-            sudo mv -f ./.circleci/eoan-sources.list /etc/apt/sources.list
-            sudo apt update && sudo apt full-upgrade
-            sudo apt install autopkgtest build-essential debhelper devscripts dh-autoreconf dh-buildinfo dh-exec \
-            dh-make dh-make-perl dh-strip-nondeterminism dpkg-dev equivs ftp man-db pkg-perl-autopkgtest quilt
-      - attach_workspace:
-          at: /home/circleci/debs
       - run:
           name: Install built library packages
           command: >
@@ -275,16 +260,9 @@ workflows:
               only:
                 - master
                 - gtk3
-      - build_dependency_deb_packages:
+      - build_deb_packages:
           requires:
             - test_build_scripts
-          filters:
-            branches:
-              only: master
-      - build_asbru_deb_package:
-          requires:
-            - test_build_scripts
-            - build_dependency_deb_packages
           filters:
             branches:
               only:
@@ -300,10 +278,10 @@ workflows:
                 - gtk3
       - test_deb_packages:
           requires:
-            - build_dependency_deb_packages
-            - build_asbru_deb_package
+            - build_deb_packages
           filters:
             branches:
               only:
                 - master
+                - gtk3
 ...
