@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 '''apport package hook for Ásbrú Connection Manager
 
 Copyright (C) 2020, Ásbrú Project Team <contact@asbru-cm.net>.

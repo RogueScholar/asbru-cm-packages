@@ -1,7 +1,7 @@
 #!/usr/bin/make -f
 # -*- makefile -*-
 
-DEB_BUILD_MAINT_OPTIONS = future=+lfs hardening=+all reproducible=+fixfilepath
+DEB_BUILD_MAINT_OPTIONS = future=+lfs hardening=+all
 DH_VERBOSE              = 1
 export DEB_BUILD_MAINT_OPTIONS DH_VERBOSE
 
@@ -10,4 +10,14 @@ include /usr/share/dpkg/default.mk
 
 
 %:
-	dh $@
+	dh $@ --with apport,bash-completion
+
+
+override_dh_install:
+	dh_install
+	rm -f $(CURDIR)/debian/asbru-cm/usr/share/asbru-cm/res/asbru-cm.desktop \
+		$(CURDIR)/debian/asbru-cm/usr/share/asbru-cm/res/asbru_bash_completion \
+		$(CURDIR)/debian/asbru-cm/usr/share/asbru-cm/res/asbru-cm.1
+
+override_dh_python3:
+	dh_python3 --shebang=/usr/bin/python3

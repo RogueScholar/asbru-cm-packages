@@ -1,0 +1,58 @@
+Description: Bring .desktop file into compliance with specification
+Author: Peter J. Mello <admin@petermello.net>
+Origin: other
+Forwarded: no
+Last-Update: 2020-02-04
+
+--- a/res/asbru-cm.desktop
++++ b/res/asbru-cm.desktop
+@@ -1,27 +1,39 @@
+ [Desktop Entry]
++Version=1.1
++Type=Application
+ Name=Ásbrú Connection Manager
+-Comment=Ásbrú Connection Manager is a user interface that helps organizing remote terminal sessions and automating repetitive tasks.
+-Terminal=false
++GenericName=Remote Connection Manager
++Comment=Manage and automate multiple remote terminal sessions via tabbed interface
+ Icon=asbru-cm
+-Type=Application
+-Exec=env GDK_BACKEND=x11 asbru-cm
++TryExec=/usr/share/asbru-cm/asbru-cm
++Exec=sh -c "GDK_BACKEND=x11 asbru-cm" %u
++Path=/usr/share/asbru-cm/utils
++Categories=Network;System;RemoteAccess;TerminalEmulator;GTK;
++Keywords=ssh;telnet;mosh;serial;ftp;sftp;rdp;vnc;remote;terminal;console;
++MimeType=x-scheme-handler/ssh;x-scheme-handler/telnet;x-scheme-handler/ftp;x-scheme-handler/sftp;x-scheme-handler/rdp;x-scheme-handler/vnc;
+ StartupNotify=true
+-Categories=Utility;TerminalEmulator;GTK;
++StartupWMClass=Asbru-cm
++Terminal=false
++DBusActivatable=false
++NoDisplay=false
++Hidden=false
+ X-GNOME-Autostart-enabled=false
++X-KDE-SubstituteUID=false
++X-KDE-Username=
+ Actions=Shell;Quick;ReadOnly;Tray;
+ 
+ [Desktop Action Shell]
+ Name=Start local shell
+-Exec=env GDK_BACKEND=x11 asbru-cm --start-shell
++Exec=sh -c "GDK_BACKEND=x11 asbru-cm --start-shell"
+ 
+ [Desktop Action Quick]
+ Name=Quick connect...
+-Exec=env GDK_BACKEND=x11 asbru-cm --quick-conn
++Exec=sh -c "GDK_BACKEND=x11 asbru-cm --quick-conn" %u
+ 
+ [Desktop Action ReadOnly]
+-Name=Start Read-Only instance
+-Exec=env GDK_BACKEND=x11 asbru-cm --readonly --no-backup
++Name=Start read-only instance
++Exec=sh -c "GDK_BACKEND=x11 asbru-cm --readonly --no-backup"
+ 
+ [Desktop Action Tray]
+ Name=Start in system tray
+-Exec=env GDK_BACKEND=x11 asbru-cm --iconified
++Exec=sh -c "GDK_BACKEND=x11 asbru-cm --iconified"
