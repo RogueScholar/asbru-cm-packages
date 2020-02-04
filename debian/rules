@@ -1,7 +1,7 @@
 #!/usr/bin/make -f
 # -*- makefile -*-
 
-DEB_BUILD_MAINT_OPTIONS = future=+lfs hardening=+all reproducible=+fixfilepath
+DEB_BUILD_MAINT_OPTIONS = future=+lfs hardening=+all
 DH_VERBOSE              = 1
 export DEB_BUILD_MAINT_OPTIONS DH_VERBOSE
 

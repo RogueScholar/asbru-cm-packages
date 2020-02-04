@@ -1,5 +1,4 @@
 asbru-cm						usr/share/asbru-cm
-debian/source_asbru_cm.py		usr/share/apport/package-hooks
 lib								usr/share/asbru-cm
 res								usr/share/asbru-cm
 utils							usr/share/asbru-cm
