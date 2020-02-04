@@ -10,4 +10,4 @@ include /usr/share/dpkg/default.mk
 
 
 %:
-	dh $@
+	dh $@ --with apport

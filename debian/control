@@ -4,7 +4,7 @@ Priority: optional
 Maintainer: Ásbrú Project Team <contact@asbru-cm.net>
 Uploaders: Gaëtan Frenoy <gaetan@frenoy.net>,
  Klaas Tammling <klaas@tammling.hamburg>, Peter J. Mello <admin@petermello.net>
-Build-Depends: debhelper-compat (= 12), perl (>= 5.8.0), bash-completion
+Build-Depends: debhelper-compat (= 12), dh-apport, perl, bash-completion
 Standards-Version: 4.5.0
 Homepage: https://www.asbru-cm.net/
 Vcs-Git: https://github.com/asbru-cm/asbru-cm.git
@@ -13,14 +13,14 @@ Rules-Requires-Root: no
 
 Package: asbru-cm
 Architecture: all
-Depends: perl (> 5.8.0), dbus-x11, ftp, openssh-client, telnet,
- libgtk3-perl (>= 0.008), libglib-perl (>= 3:1.242), libvte-2.91-0 (>= 0.37.90),
- gir1.2-vte-2.91, gir1.2-wnck-3.0, libcairo-perl, libcanberra-gtk-module,
- libcrypt-blowfish-perl, libcrypt-cbc-perl, libcrypt-rijndael-perl,
- libexpect-perl, libgtk3-simplelist-perl, libnet-arp-perl, libnet-proxy-perl,
- libossp-uuid-perl, libpango-perl, libsocket6-perl, libx11-guitest-perl,
- libxml-parser-perl, libyaml-perl, ${perl:Depends}, ${misc:Depends}
-Suggests: python (>= 2.6), bash-completion
+Depends: dbus-x11, ftp, openssh-client, telnet, gir1.2-vte-2.91,
+ gir1.2-wnck-3.0, libcairo-perl, libcanberra-gtk-module, libcrypt-blowfish-perl,
+ libcrypt-cbc-perl, libcrypt-rijndael-perl, libexpect-perl, libglib-perl,
+ libgtk3-perl, libgtk3-simplelist-perl, libnet-arp-perl, libnet-proxy-perl,
+ libossp-uuid-perl, libpango-perl, libsocket6-perl, libvte-2.91-0,
+ libx11-guitest-perl, libxml-parser-perl, libyaml-perl, ${perl:Depends},
+ ${misc:Depends}
+Suggests: python, apport, bash-completion
 Description: remote terminal emulator that manages multiple remote sessions
  Ásbrú Connection Manager is a remote connection manager/terminal emulator that
  allows users to organize multiple remote terminal sessions (SSH, Telnet, Mosh,
