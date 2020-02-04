@@ -1,8 +1,55 @@
-asbru-cm (6.0.0-0beta1) unstable; urgency=medium
+asbru-cm (6.0.3-1) stable; urgency=medium
 
-  * New upstream beta release: refactor codebase to run on GTK3 framework.
+  * Upstream 6.0.3 release
 
- -- Ásbrú Project Team <contact@asbru-cm.net>  Fri, 04 Oct 2019 15:10:09 -0700
+ -- Ásbrú Project Team <contact@asbru-cm.net> Fri, 17 Jan 2020 11:00:00 +0200
+
+asbru-cm (6.0.2-1) stable; urgency=medium
+
+  * Upstream 6.0.2 release
+
+ -- Ásbrú Project Team <contact@asbru-cm.net> Sat, 11 Jan 2020 11:00:00 +0200
+
+asbru-cm (6.0.1-1) stable; urgency=medium
+
+  * Upstream 6.0.1 release
+
+ -- Ásbrú Project Team <contact@asbru-cm.net> Sat, 04 Jan 2020 10:51:00 +0200
+
+asbru-cm (6.0.0-1) unstable; urgency=medium
+
+  * New upstream release: 6.0.0
+    + Port from GTK2 framework to GTK3 with Virtual Terminal library v2.91
+    + Fix GtkDialog mapped without a transient parent
+    + Add option to copy credentials from another defined connection
+    + Add ability to restart connection by double-left-click on tab
+    + Change new SSH connection X11-forwarding default to disabled
+    + Make sure keyboard focus is kept on command prompt when switching tabs
+    + Adjust layout of connection/tab tree panel to be more compact
+    + Add connection log viewing for embedded protocol windows (VNC/RDP)
+    + Fix persistence of multiple selections in connection/tab tree panel
+    + Disambiguate Name and Title fields when cloning connections
+    + Fix VNC connection status is not parsing properly (always "connecting")
+    + Fix inability to edit connection proxy settings after initial definition
+    + Remove 14 character limit on usernames on connection settings Proxy tab
+    + Fix SIGWINCH handling causes segfault on terminal/window resize
+    + Fix incorrect mapping of Command/Macro list entries after deletions
+    + Remove the 'Embed' option for VNC connections via external apps
+    + Fix warning when editing VNC connections with no VNC client installed
+    + Fix context menu absence on right-click after closing RDP connection tab
+    + Improve window sizes and positioning for Explode Cluster command
+    + Fix segfault on Re-Tab command after using Explode Cluster
+    + Fix segfault when opening a second instance
+    + Fix failure to correctly handle CTRL+SHIFT+G input using Fish or Z shells
+    + Fix context menu placement following right-click on tray icon
+    + Fix broken link in License tab of About... dialog box
+  * d/control: Bump S-V to 4.5.0, no changes required
+  * d/rules: Add Emacs Makefile mode header comment
+  * d/copyright: Update header text for GPL 3 to conform to DEP-5
+  * d/upstream/metadata: Add Donation key/value and remove deprecated Name and
+                         Contact keys/values
+
+ -- Ásbrú Project Team <contact@asbru-cm.net> Thu, 02 Jan 2020 10:49:00 -0800
 
 asbru-cm (5.2.1-1) unstable; urgency=medium
 
