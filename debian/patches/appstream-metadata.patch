@@ -1,0 +1,90 @@
+Description: Add compliant AppStream metadata XML to package
+Author: Peter J. Mello <admin@petermello.net>
+Origin: other
+Forwarded: no
+Last-Update: 2020-03-01
+
+--- a/dev/null
++++ b/res/com.github.asbru-cm.metadata.xml
+@@ -0,0 +81,81 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<!-- Copyright © 2020, Peter J. Mello <admin@petermello.net> -->
++<component type="desktop-application">
++  <id>com.github.asbru-cm</id>
++  <name>Ásbrú Connection Manager</name>
++  <metadata_license>MIT</metadata_license>
++  <project_license>GPL-3.0-or-later</project_license>
++  <developer_name>Ásbrú Project Team</developer_name>
++  <summary>Organize multiple remote terminal sessions and automate repetitive tasks.</summary>
++
++  <description>
++    <p>
++      Ásbrú Connection Manager is a remote connection manager/terminal emulator
++      that allows users to organize multiple remote terminal sessions (SSH,
++      Telnet, Mosh, etc.) using a single client application, thanks to a tabbed
++      interface reminiscent of modern web browsers.
++    </p>
++    <p>
++      Connections can be grouped to allow launching multiple connections to
++      related hosts with a single command, or even multiplexed, with multiple
++      client sessions being opened to the same remote host.
++    </p>
++    <p>
++      Each connection's properties can be managed independently with exquisite
++      detail, from environment variables to appearance, logging to crontabs.
++    </p>
++    <p>
++      An advanced scripting interface extends the functionality even further by
++      simplifying the automation of repetitive tasks while the history panel
++      displays a live list of the most recent commands sent to each host, any of
++      which can be repeated with a single click.
++    </p>
++  </description>
++
++  <launchable type="desktop-id">com.github.asbru-cm.desktop</launchable>
++  <categories>
++    <category>Utility</category>
++    <category>TerminalEmulator</category>
++  </categories>
++  <icon type="stock">asbru-cm</icon>
++
++  <screenshots>
++    <screenshot type="default">
++      <caption>GUI - Main Window (Dark Mode)</caption>
++      <image>https://www.asbru-cm.net/assets/img/screenshots/06-asbru-connection-on-manjaro.png</image>
++    </screenshot>
++    <screenshot>
++      <caption>Connection Properties window</caption>
++      <image>https://www.asbru-cm.net/assets/img/screenshots/02-asbru-connection-manager-ssh.png</image>
++    </screenshot>
++  </screenshots>
++
++  <url type="homepage">https://www.asbru-cm.net/</url>
++  <update_contact>contact_AT_asbru-cm.net</update_contact>
++
++  <provides>
++    <binary>asbru-cm</binary>
++  </provides>
++
++  <releases>
++    <release version="6.1.0rc1" date="2020-03-01">
++      <description>
++        <p>
++          This is the first release candidate for Ásbrú Connection Manager 6.1.0
++          introducing several new features and improvements.
++        </p>
++        <p>New Features:</p>
++        <ul>
++          <li>Support for SOCKS Proxy (for VNC/RDP/SSH/SFTP today) using ncat
++              for advanced cases</li>
++          <li>Support for Jump Host to simplify SSH tunneling for VNC/RDP/SSH
++              connections.</li>
++        </ul>
++        <p>Improvements:</p>
++        <ul>
++          <li>Removed dependency on Net::proxy</li>
++        </ul>
++      </description>
++    </release>
++  </releases>
++</component>

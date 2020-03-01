@@ -5,7 +5,7 @@ Forwarded: no
 Last-Update: 2020-02-04
 
 --- a/res/asbru-cm.desktop
-+++ b/res/asbru-cm.desktop
++++ b/res/com.github.asbru-cm.desktop
 @@ -1,27 +1,39 @@
  [Desktop Entry]
 +Version=1.1

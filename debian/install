@@ -1,5 +1,6 @@
-asbru-cm				usr/share/asbru-cm
-lib						usr/share/asbru-cm
-res						usr/share/asbru-cm
-utils					usr/share/asbru-cm
-res/asbru-cm.desktop	usr/share/applications
+asbru-cm								usr/share/asbru-cm
+lib										usr/share/asbru-cm
+res										usr/share/asbru-cm
+utils									usr/share/asbru-cm
+res/com.github.asbru-cm.metainfo.xml	usr/share/metainfo
+res/asbru-cm.desktop					usr/share/applications/com.github.asbru-cm.desktop

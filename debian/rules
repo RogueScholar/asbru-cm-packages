@@ -15,7 +15,8 @@ include /usr/share/dpkg/default.mk
 
 override_dh_install:
 	dh_install
-	rm -f $(CURDIR)/debian/asbru-cm/usr/share/asbru-cm/res/asbru-cm.desktop \
+	rm -f $(CURDIR)/debian/asbru-cm/usr/share/asbru-cm/res/com.github.asbru-cm.metainfo.xml \
+		$(CURDIR)/debian/asbru-cm/usr/share/asbru-cm/res/asbru-cm.desktop \
 		$(CURDIR)/debian/asbru-cm/usr/share/asbru-cm/res/asbru_bash_completion \
 		$(CURDIR)/debian/asbru-cm/usr/share/asbru-cm/res/asbru-cm.1
 
